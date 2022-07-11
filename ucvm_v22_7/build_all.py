@@ -15,8 +15,7 @@ if __name__ == '__main__':
               "cvms",
               "cvmsi",
               "cencal",
-              "cvmh",
-              "albacore"]
+              "cvmh"]
 """
 
     models = ["cvms5",
