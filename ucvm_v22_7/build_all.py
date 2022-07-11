@@ -16,11 +16,21 @@ if __name__ == '__main__':
               "cvmsi",
               "cencal",
               "cvmh",
+              "albacore"]
+"""
+
+    models = ["cvms5",
+              "cca",
+              "cvms",
+              "cvmsi",
+              "cencal",
+              "cvmh",
               "albacore",
               "cvlsu",
               "ivlsu",
               "wfcvm",
               "cvmhlabn cvmhsgbn cvmhvbn cvmhibbn cvmhrbn cvmhstbn cvmhsbbn cvmhsbcbn cvmhsmbn"]
+
 
     for m in models:
         print ("building model: " + m)
@@ -32,7 +42,7 @@ if __name__ == '__main__':
 
         cmd = "docker tag ucvm_227_%s:%s sceccode/ucvm_227_%s:%s"%(m,mdate,m,mdate)
         os.system(cmd)
-
+"""
 
     for m in models:
         print("pushing models: " + m)
