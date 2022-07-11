@@ -16,7 +16,8 @@ if __name__ == '__main__':
               "cvmsi",
               "cencal",
               "cvmh"]
-"""
+
+    """
 
     models = ["cvms5",
               "cca",
@@ -45,5 +46,5 @@ if __name__ == '__main__':
 
     for m in models:
         print("pushing models: " + m)
-        cmd = "docker push sceccode/ucvm_227_%s:%s"%(m,mdate)
+        cmd = "docker push sceccode/ucvm_227_%s:%s" % (m, mdate)
         os.system(cmd)
