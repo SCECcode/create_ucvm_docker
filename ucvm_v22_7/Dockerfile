@@ -1,6 +1,7 @@
 
 # Create UCVM model Docker Image based on rockylinux which is similar to Centos-8 used at USC CARC
-# FROM rockylinux:8.5
+#
+# ON mac M1 chipset,
 # this leads to: qemu-x86_64: Could not open '/lib64/ld-linux-x86-64.so.2': No such file or directory
 # according to this: https://stackoverflow.com/questions/71040681/qemu-x86-64-could-not-open-lib64-ld-linux-x86-64-so-2-no-such-file-or-direc
 # docker build --platform linux/amd64 --no-cache=false ...
@@ -16,7 +17,11 @@
 ## same error
 ## ===
 ## another solution: https://stackoverflow.com/questions/70722222/how-to-run-tkinter-inside-a-docker-container-on-macbook-pro
-
+##
+## run with 
+#docker run --platform linux/amd64 --rm -it -e DISPLAY=$"${IP}:0"  --mount type=bind,source="$(pwd)"/target,destination=/app/target sceccode/ucvm_227_cvms5:0710
+# disable the warning
+#
 
 FROM rockylinux:8.5
 ENV LANG=C.UTF-8 LC_ALL=C.UTF-8
