@@ -1,15 +1,16 @@
 
-# Set Mac IP address
+#                  Set Mac IP address
 IP=`ifconfig -l | xargs -n1 ipconfig getifaddr`
-# Allow connections from Mac to XQuartz
+#                  Allow connections from Mac to XQuartz
 /opt/X11/bin/xhost + "$IP"
 
 docker run --rm -it -e DISPLAY=$"${IP}:0"  --mount type=bind,source="$(pwd)"/target,destination=/app/target sceccode/ucvm_227_cvms5:0710
 
 /opt/X11/bin/xhost - "$IP"
 
+
+
+
 #docker run --rm -it --mount type=bind,source="$(pwd)"/target,destination=/app/target ucvm_227_ivlsu:0810
-
 #docker run --rm -it -u ucvmuser  --mount type=bind,source="$(pwd)"/target,destination=/app/target ucvm_227_ivlsu:0810
-
 #docker run --rm -it --mount type=bind,source="$(pwd)"/target,destination=/app/target sceccode/ucvm_227_ivlsu:0710
