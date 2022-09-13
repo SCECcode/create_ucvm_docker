@@ -5,7 +5,7 @@ FROM rockylinux:8.5
 ENV LANG=C.UTF-8 LC_ALL=C.UTF-8
 
 # Define Build and runtime arguments
-APP_UNAME=ucvmuser
+ARG APP_UNAME
 ARG APP_GRPNAME
 ARG APP_UID
 ARG APP_GID

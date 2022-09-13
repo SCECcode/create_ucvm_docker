@@ -1,4 +1,4 @@
 
-docker build --platform linux/amd64 --no-cache=false -f Dockerfile . -t ucvm_227_ivlsu --build-arg APP_UNAME=ucvm --build-arg APP_GRPNAME=`id -g -nr` --build-arg APP_UID=`id -u` --build-arg APP_GID=`id -g` --build-arg MODELID=ivlsu --build-arg BDATE=0810
+docker build --platform linux/amd64 --no-cache=false -f Dockerfile . -t ucvm_227_ivlsu --build-arg APP_UNAME=ucvmuser --build-arg APP_GRPNAME=`id -g -nr` --build-arg APP_UID=`id -u` --build-arg APP_GID=`id -g` --build-arg MODELID=ivlsu --build-arg BDATE=0810
 
-#docker build --no-cache=false -f Dockerfile . -t ucvm_227_ivlsu --build-arg APP_UNAME=ucvm --build-arg APP_GRPNAME=`id -g -nr` --build-arg APP_UID=`id -u` --build-arg APP_GID=`id -g` --build-arg MODELID=ivlsu --build-arg BDATE=0810
+#docker build --no-cache=false -f Dockerfile . -t ucvm_227_ivlsu --build-arg APP_UNAME=ucvmuser --build-arg APP_GRPNAME=`id -g -nr` --build-arg APP_UID=`id -u` --build-arg APP_GID=`id -g` --build-arg MODELID=ivlsu --build-arg BDATE=0810
