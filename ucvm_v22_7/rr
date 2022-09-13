@@ -1,6 +1,7 @@
 
 # Set Mac IP address
 IP=`ifconfig -l | xargs -n1 ipconfig getifaddr`
+echo "Remember to run : xhost - "$IP
 # Allow connections from Mac to XQuartz
 /opt/X11/bin/xhost + "$IP"
 

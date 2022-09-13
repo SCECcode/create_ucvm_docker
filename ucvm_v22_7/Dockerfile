@@ -1,45 +1,23 @@
-
 # Create UCVM model Docker Image based on rockylinux which is similar to Centos-8 used at USC CARC
-#
-# ON mac M1 chipset,
-# this leads to: qemu-x86_64: Could not open '/lib64/ld-linux-x86-64.so.2': No such file or directory
-# according to this: https://stackoverflow.com/questions/71040681/qemu-x86-64-could-not-open-lib64-ld-linux-x86-64-so-2-no-such-file-or-direc
-# docker build --platform linux/amd64 --no-cache=false ...
-#=> => writing image sha256:3166c6f927375ce31ca27e5deb34d1f721b7143bbbc33da038807ff9791c9bf  0.0s
-#=> => naming to docker.io/library/ucvm_227_ivlsu:0810                                       0.0s
-## running
-#WARNING: The requested image's platform (linux/amd64) does not match the detected host platform (linux/arm64/v8) and no specific platform was requested
-#(Python2) [ucvmuser@b5e2c720b80b target]$ 
-## running with addition: -e DISPLAY=$DISPLAY 
-## and view_png.py
-## tkinter.TclError: couldn't connect to display "/private/tmp/com.apple.launchd.dcqaQplifw/org.xquartz:0"
-## also adding : -v /tmp/.X11-unix:/tmp/.X11-unix
-## same error
-## ===
-## another solution: https://stackoverflow.com/questions/70722222/how-to-run-tkinter-inside-a-docker-container-on-macbook-pro
-##
-## run with 
-#docker run --platform linux/amd64 --rm -it -e DISPLAY=$"${IP}:0"  --mount type=bind,source="$(pwd)"/target,destination=/app/target sceccode/ucvm_227_cvms5:0710
-# disable the warning
 #
 
 FROM rockylinux:8.5
 ENV LANG=C.UTF-8 LC_ALL=C.UTF-8
 
 # Define Build and runtime arguments
-#ARG APP_UNAME
-#ARG APP_GRPNAME
-#ARG APP_UID
-#ARG APP_GID
-#ARG MODELID
-#ARG BDATE
+APP_UNAME=ucvmuser
+ARG APP_GRPNAME
+ARG APP_UID
+ARG APP_GID
+ARG MODELID
+ARG BDATE
 
-ENV APP_UNAME=ucvmuser \
-APP_GRPNAME=staff \
-APP_UID=503 \
-APP_GID=1000 \
-MODELID=ivlsu \
-BDATE=0810
+ENV APP_UNAME=$APP_UNAME \
+APP_GRPNAME=$APP_GRPNAME \
+APP_UID=$APP_UID \
+APP_GID=$APP_GID \
+MODELID=$MODELID \
+BDATE=$BDATE
 
 # Retrieve the userid and groupid from the args so 
 # Define these parameters to support building and deploying on EC2 so user is not root
