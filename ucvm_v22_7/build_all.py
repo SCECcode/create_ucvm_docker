@@ -30,7 +30,8 @@ if __name__ == '__main__':
 
     for m in models:
         print ("building model: " + m)
-        cmd = "docker build --no-cache=false -f Dockerfile . -t ucvm_227_%s:%s " \
+## special case for mac M1 chip
+        cmd = "docker build --platform=linux/amd64 --no-cache=false -f Dockerfile . -t ucvm_227_%s:%s " \
             "--build-arg APP_UNAME=ucvmuser --build-arg APP_GRPNAME=`id -g -nr` " \
             "--build-arg APP_UID=`id -u` --build-arg APP_GID=`id -g` --build-arg MODELID=%s --build-arg BDATE=%s"%(m,mdate,m,mdate)
         os.system(cmd)
