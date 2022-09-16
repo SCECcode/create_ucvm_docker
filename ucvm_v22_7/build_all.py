@@ -3,23 +3,18 @@
 #
 
 import os
+import datetime
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
 
     # build date tag
-    mdate = "0710"
+    dt=datetime.datetime.today()
+    month=dt.month
+    day=dt.day
+    mdate="%02d%02d"%(month,day)
 
-    models = ["cvms5",
-              "cca",
-              "cvms",
-              "cvmsi",
-              "cencal",
-              "cvmh"]
-
-    """
-
-    models = ["cvms5",
+    all_models = ["cvms5",
               "cca",
               "cvms",
               "cvmsi",
@@ -31,20 +26,19 @@ if __name__ == '__main__':
               "wfcvm",
               "cvmhlabn cvmhsgbn cvmhvbn cvmhibbn cvmhrbn cvmhstbn cvmhsbbn cvmhsbcbn cvmhsmbn"]
 
+    models = [ "cvms5" ]
 
     for m in models:
         print ("building model: " + m)
         cmd = "docker build --no-cache=false -f Dockerfile . -t ucvm_227_%s:%s " \
-            "--build-arg APP_UNAME=`id -u -nr` --build-arg APP_GRPNAME=`id -g -nr` " \
+            "--build-arg APP_UNAME=ucvmuser --build-arg APP_GRPNAME=`id -g -nr` " \
             "--build-arg APP_UID=`id -u` --build-arg APP_GID=`id -g` --build-arg MODELID=%s --build-arg BDATE=%s"%(m,mdate,m,mdate)
-
         os.system(cmd)
 
-        cmd = "docker tag ucvm_227_%s:%s sceccode/ucvm_227_%s:%s"%(m,mdate,m,mdate)
+        cmd = "docker tag ucvm_227_%s:%s sceccode/ucvm_227_%s:latest"%(m,mdate,m)
         os.system(cmd)
-"""
 
     for m in models:
         print("pushing models: " + m)
-        cmd = "docker push sceccode/ucvm_227_%s:%s" % (m, mdate)
+        cmd = "docker push sceccode/ucvm_227_%s:latest" % (m)
         os.system(cmd)
