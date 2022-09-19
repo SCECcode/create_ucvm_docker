@@ -34,7 +34,7 @@ if __name__ == '__main__':
 
     models = ["cvms5"]
 
-    for m in all_models:
+    for m in models:
         print ("building model: " + m)
 ## special case for mac M1 chip
         if cpuname == "M1" :
