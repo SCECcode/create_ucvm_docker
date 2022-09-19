@@ -1,6 +1,6 @@
 # Contributing to UCVM
 
-This document provides an overview on how to contribute to UCVM, and will provide step-by-step instructions on a practical contribution workflow.
+This document provides an overview on how to contribute to create_ucvm_docker, and will provide step-by-step instructions on a practical contribution workflow.
 
 ## Getting Started
 
@@ -30,14 +30,13 @@ If you feel that you need to add large files, let us know and we can figure some
 
 ## Submitting an Issue
 
-Please open an issue if you want to ask a question about UCVM.
+Please open an issue if you want to ask a question about UCVM or create_ucvm_docker.
 
 * Please search through the past issues to see if your question or the bug has already been addressed
 * Please apply the correct tag to your issue so others can search
 
 If you want to submit a bug report, please provide the information below:
-* UCVM version, Python version, and Platform (Linux, Windows, Mac OSX, etc)
-* How did you install UCVM (Docker, from source...)
+* UCVM Docker image version, UCVM version,Python version, and Platform (Linux, Windows, Mac OSX, etc)
 * Please provide a short, complete, and correct example that demonstrates the issue.
 * If this broke in a recent update, please tell us when it used to work.
 

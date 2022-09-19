@@ -34,6 +34,7 @@ To build a full set of Docker images,
 $ ./build_all.py
 </pre>
 
+To test Docker images please refer to ucvm_docker's wiki(https://github.com/SCECcode/ucvm_docker/wiki)
 
 ## Support
 Support for UCVM docker images create utilities are provided by that Southern California Earthquake Center (SCEC) Research Computing Group. This group supports several research software distributions including UCVM. Users can report issues and feature requests using UCVM's github-based issue tracking link below. Developers will also respond to emails sent to the SCEC software contact listed below.
