@@ -99,16 +99,9 @@ VOLUME /app/target
 # Setup user with test input files
 #
 WORKDIR /app
-COPY --chown=$APP_UNAME:$APP_GRPNAME test_latlons.txt ./test_latlons.txt
-COPY --chown=$APP_UNAME:$APP_GRPNAME basic_query.txt ./basic_query.txt
-COPY --chown=$APP_UNAME:$APP_GRPNAME make_mesh.py ./make_mesh.py
+COPY examples /app/examples
 
-RUN mkdir inputs && \
-    mv test_latlons.txt inputs && \
-    mv basic_query.txt inputs && \
-    mv make_mesh.py inputs
-
-RUN chmod -R og+rw /app/ucvm
+RUN chmod -R og+rw /app/ucvm /app/examples
 
 # Define directory that will be mounted and used for file input/output
 #

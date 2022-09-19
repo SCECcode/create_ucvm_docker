@@ -1,0 +1,13 @@
+
+In a running UCVM container
+
+user id is ucvmuser
+
+ucvmuser's home directory is at /home/ucvmuser, this is not preserved after session exits
+
+relevant directory structure is under /app
+
+/app/inputs contains couple of example scripts and datapoints
+/app/ucvm contains the installation of UCVM v22.7 and ucvm plotting utilities
+/app/target is the working target directory, this is preserved after session exits
+
