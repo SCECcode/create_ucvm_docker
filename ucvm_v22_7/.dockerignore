@@ -2,7 +2,7 @@
 .gitignore
 docker-compose*
 README.md
-LICENSE
+LICENSE.md
 was.dockerfile
 was.dockerfile_tues
 target

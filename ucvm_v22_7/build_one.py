@@ -34,7 +34,7 @@ if __name__ == '__main__':
 
     models = ["cvms5"]
 
-    for m in all_models:
+    for m in models:
         print ("building model: " + m)
 ## special case for mac M1 chip
         if cpuname == "M1" :
@@ -52,7 +52,7 @@ if __name__ == '__main__':
         os.system(cmd)
 
     for m in models:
-        print("pushing models: " + m)
+        print("pushing models: " + m + "with sceccode/ucvm_227_%s:%s" % (m,mdate))
         cmd = "docker push sceccode/ucvm_227_%s:%s" % (m,mdate)
         cmd = "docker push sceccode/ucvm_227_%s:latest" % (m)
         os.system(cmd)
