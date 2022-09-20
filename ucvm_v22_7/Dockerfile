@@ -65,7 +65,7 @@ WORKDIR /app/src/largefiles
 RUN ./get_largefiles.py -m $MODELID && ./stage_largefiles.py
 
 WORKDIR /app/src
-RUN ./ucvm_setup.py -a -d -p /app/ucvm >& /app/ucvm/ucvm_setup_install.log
+RUN ./ucvm_setup.py -a -d -p /app/ucvm >& ./ucvm_setup_install.log
 
 # Remove the src directories to save space
 WORKDIR /app
