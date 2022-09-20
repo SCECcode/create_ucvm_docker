@@ -24,7 +24,7 @@ This github repository contains the Dockerfile and related files for creating th
 Before building a UCVM Docker image, make sure you can access dockerhub's sceccode image repository space. You should login to your Docker account that has permission to push to the sceccode organization registry. If you want to build UCVM Docker images for 
 local testing and not pushing the created image to sceccode space on the dockerhub, you could mark off the 'docker push' commands in the build python scripts.
 
-To build a Docker image, there is a example python script under ucvm_v22_7 directory.
+To build a Docker image, there is a build_one.py  python script under ucvm_v22_7 directory.
 <pre>
 $ ./build_one.py
 </pre>
