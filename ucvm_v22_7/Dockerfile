@@ -102,6 +102,7 @@ WORKDIR /app
 COPY examples /app/examples
 
 RUN chmod -R og+rw /app/ucvm /app/examples
+RUN chmod -R +x /app/examples/*.py /app/examples/*.sh
 
 # Define directory that will be mounted and used for file input/output
 #
