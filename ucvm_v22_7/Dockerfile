@@ -21,12 +21,7 @@ BDATE=$BDATE
 # Retrieve the userid and groupid from the args so 
 # Define these parameters to support building and deploying on EC2 so user is not root
 # and for building the model and adding the correct date into the label
-RUN echo $APP_UNAME
-RUN echo $APP_GRPNAME
-RUN echo $APP_UID
-RUN echo $APP_GID
-RUN echo $MODELID
-RUN echo $BDATE
+RUN echo $APP_UNAME $APP_GRPNAME $APP_UID $APP_GID $MODELID $BDATE
 
 RUN yum clean all && yum -y update && yum -y\
  groupinstall "Development Tools" && yum -y\
@@ -51,15 +46,12 @@ RUN wget --quiet https://repo.anaconda.com/archive/Anaconda3-2022.05-Linux-x86_6
     find /usr/local/opt/conda/ -follow -type f -name '*.js.map' -delete && \
     /usr/local/opt/conda/bin/conda clean -afy
 
-RUN echo "source /usr/local/opt/conda/etc/profile.d/conda.sh" >> ~/.bashrc && \
-    echo "conda activate base" >> ~/.bashrc
-
 RUN /usr/local/opt/conda/bin/conda create -n Python2 python=2.7.15 scipy pip numpy matplotlib basemap basemap-data-hires
 
 # Setup Owners
 # Documents say this groupadd is needed when you build on linux, but not on Mac
-RUN groupadd --non-unique --gid $APP_GID $APP_GRPNAME
-RUN useradd -ms /bin/bash -G $APP_GRPNAME --uid $APP_UID $APP_UNAME
+RUN groupadd --non-unique --gid $APP_GID $APP_GRPNAME && \
+    useradd -ms /bin/bash -G $APP_GRPNAME --uid $APP_UID $APP_UNAME
 
 RUN chmod -R og+rw /app
 
@@ -70,13 +62,10 @@ RUN git clone https://github.com/sceccode/ucvm.git src
 # An external script has selected the correct model files for this image in the largefiles dir
 # by setting the model abbreviations in the largefile_inputs.txt file
 WORKDIR /app/src/largefiles
-
-RUN ./get_largefiles.py -m $MODELID
-RUN ./stage_largefiles.py
+RUN ./get_largefiles.py -m $MODELID && ./stage_largefiles.py
 
 WORKDIR /app/src
-RUN ./ucvm_setup.py -a -d -p /app/ucvm >& ~/ucvm_setup_install.log && \
-    echo "source  /app/ucvm/conf/ucvm_env.sh" >> ~/.bashrc
+RUN ./ucvm_setup.py -a -d -p /app/ucvm >& /app/ucvm/ucvm_setup_install.log
 
 # Remove the src directories to save space
 WORKDIR /app
@@ -101,8 +90,8 @@ VOLUME /app/target
 WORKDIR /app
 COPY examples /app/examples
 
-RUN chmod -R og+rw /app/ucvm /app/examples
-RUN chmod -R +x /app/examples/*.py /app/examples/*.sh
+RUN chmod -R og+rw /app/ucvm /app/examples && \
+    chmod -R +x /app/examples/*.py /app/examples/*.sh
 
 # Define directory that will be mounted and used for file input/output
 #
@@ -116,15 +105,11 @@ LABEL org.scec.primary_contact="maechlin@usc.edu"
 LABEL version="ucvm_v22_7"
 
 USER $APP_UNAME
-
 RUN echo "source /usr/local/opt/conda/etc/profile.d/conda.sh" >> ~/.bashrc && \
-    echo "source  /app/ucvm/conf/ucvm_env.sh" >> ~/.bashrc
-RUN echo "conda activate Python2" >> ~/.bashrc
+    echo "source /app/ucvm/conf/ucvm_env.sh" >> ~/.bashrc && \
+    echo "conda activate Python2" >> ~/.bashrc
 
 SHELL ["/bin/bash", "--login", "-c"]
-
 WORKDIR /app/target
-
-
 ENTRYPOINT ["/bin/bash"]
 
