@@ -54,5 +54,5 @@ if __name__ == '__main__':
     for m in models:
         print("pushing models: " + m + "with sceccode/ucvm_227_%s:%s" % (m,mdate))
 #        cmd = "docker push sceccode/ucvm_227_%s:%s" % (m,mdate)
-        cmd = "docker push sceccode/ucvm_227_%s:latest" % (m)
-        os.system(cmd)
+#        cmd = "docker push sceccode/ucvm_227_%s:latest" % (m)
+#        os.system(cmd)
