@@ -3,12 +3,16 @@
 #
 
 import os
+import datetime
 
-# Press the green button in the gutter to run the script.
+## pip install py-cpuinfo
+import cpuinfo
+
 if __name__ == '__main__':
 
-    # build date tag
-    mdate = "0710"
+    ## this is a bug in docker about apple's M1 chip
+    cpudata = cpuinfo.get_cpu_info()['brand_raw']
+    cpuname = cpudata.split(" ")[1]
 
     models = ["cvmhvbn",
               "cvmhsgbn"]
@@ -29,15 +33,17 @@ if __name__ == '__main__':
     """
     for m in models:
         print ("building model: " + m)
-        cmd = "docker build --no-cache=false -f Dockerfile . -t ucvm_227_%s:%s " \
-            "--build-arg APP_UNAME=`id -u -nr` --build-arg APP_GRPNAME=`id -g -nr` " \
-            "--build-arg APP_UID=`id -u` --build-arg APP_GID=`id -g` --build-arg MODELID=%s --build-arg BDATE=%s"%(m,mdate,m,mdate)
+## special case for mac M1 chip
+        if cpuname == "M1" :
+          cmd = "docker build --platform=linux/amd64 --no-cache=false -f Dockerfile . -t ucvm_227_%s " \
+            "--build-arg APP_UNAME=ucvmuser --build-arg APP_GRPNAME=`id -g -nr` " \
+            "--build-arg APP_UID=`id -u` --build-arg APP_GID=`id -g` --build-arg MODELID=%s --build-arg BDATE=%s"%(m,m,mdate)
 
         print(cmd)
         os.system(cmd)
 	
         print("tagging model: " + m)
-        cmd = "docker tag ucvm_227_%s:%s sceccode/ucvm_227_%s:%s"%(m,mdate,m,mdate)
+        cmd = "docker tag ucvm_227_%s sceccode/ucvm_227_%s"%(m,m)
         print(cmd)
         os.system(cmd)
 
@@ -45,6 +51,6 @@ if __name__ == '__main__':
     for m in models:
         print ("pushing model: " + m)
         print("pushing models tags: " + m)
-        cmd = "docker push sceccode/ucvm_227_%s:%s" % (m, mdate)
+        cmd = "docker push sceccode/ucvm_227_%s" % (m)
         print(cmd)
         os.system(cmd)
