@@ -41,8 +41,8 @@ if __name__ == '__main__':
         cmd = "docker tag ucvm_252_%s:%s sceccode/ucvm_252_%s:latest"%(m,mdate,m)
         os.system(cmd)
 
-    for m in models:
-        print("pushing models: " + m + "with sceccode/ucvm_252_%s:%s" % (m,mdate))
-        cmd = "docker push sceccode/ucvm_252_%s:%s" % (m,mdate)
-        cmd = "docker push sceccode/ucvm_252_%s:latest" % (m)
-        os.system(cmd)
+#    for m in models:
+#        print("pushing models: " + m + "with sceccode/ucvm_252_%s:%s" % (m,mdate))
+#        cmd = "docker push sceccode/ucvm_252_%s:%s" % (m,mdate)
+#        cmd = "docker push sceccode/ucvm_252_%s:latest" % (m)
+#        os.system(cmd)
