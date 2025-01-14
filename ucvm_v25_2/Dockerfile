@@ -38,11 +38,11 @@ RUN wget --quiet https://repo.anaconda.com/archive/Anaconda3-2024.02-1-Linux-x86
     /bin/bash anaconda.sh -b -p /usr/local/opt/conda && \
     rm anaconda.sh && \
     source /usr/local/opt/conda/bin/activate && \
-    conda init
+    /usr/local/opt/conda/bin/conda init
 
-RUN conda config --add channels conda-forge && \
-    conda install scipy pip numpy matplotlib basemap basemap-data-hires && \
-    conda install conda-forge::gmt setuptools anaconda::pybind11 conda-forge::h5py
+RUN /usr/local/opt/conda/bin/conda config --add channels conda-forge && \
+    /usr/local/opt/conda/bin/conda install scipy pip numpy matplotlib basemap basemap-data-hires && \
+    /usr/local/opt/conda/bin/conda install conda-forge::gmt setuptools anaconda::pybind11 conda-forge::h5py
 
 # Setup Owners
 # Documents say this groupadd is needed when you build on linux, but not on Mac
@@ -69,15 +69,14 @@ RUN ./ucvm_setup.py -a -d -p /app/ucvm >& ./ucvm_setup_install.log
 
 # Install plotting libraries
 WORKDIR /app/plotting
-git clone https://github.com/SCECcode/ucvm_metadata_utilities metadata_utilities
-cd metadata_utilities
-source ./setup.sh
+RUN git clone https://github.com/SCECcode/ucvm_metadata_utilities metadata_utilities && \
+    cd metadata_utilities && \
+    source ./setup.sh
 
 WORKDIR /app/plotting
-RUN git clone https://github.com/SCECcode/ucvm_plotting.git -b withAnaconda3
-cd /app/plotting/ucvm_plotting
-conda install dist/ucvm_plotting-0.0.6.tar.gz
-
+RUN git clone https://github.com/SCECcode/ucvm_plotting.git -b withAnaconda3 && \
+    cd /app/ucvm/ucvm_plotting && \
+    conda install dist/ucvm_plotting-0.0.6.tar.gz
 
 # Define file input/output mounted disk
 #
