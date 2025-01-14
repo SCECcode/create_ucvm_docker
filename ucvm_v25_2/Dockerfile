@@ -3,6 +3,10 @@
 FROM rockylinux:8.5
 ENV LANG=C.UTF-8 LC_ALL=C.UTF-8
 
+ENV UCVM_TOP_DIR=/app/ucvm
+ENV PLOTTING_TOP_DIR=/app/plotting
+ENV CVM_LARGEDATA_DIR=/app/ucvm/cvm-large-dataset
+
 # Define Build and runtime arguments
 ARG APP_UNAME
 ARG APP_GRPNAME
@@ -25,11 +29,7 @@ RUN echo $APP_UNAME $APP_GRPNAME $APP_UID $APP_GID $MODELID $BDATE
 
 RUN yum clean all && yum -y update && yum -y\
  groupinstall "Development Tools" && yum -y\
- install wget yum-utils gcc-gfortran gcc-c++ fftw-devel which python38
-
-# Create python link as root before setting user. This is needed by
-# the ucvm_setup.py script which will run to the ucvm installation
-RUN ln -s /usr/bin/python3 /usr/bin/python
+ install wget yum-utils gcc-gfortran gcc-c++ fftw-devel which 
 
 # Create python link as root before setting user. This is needed by
 # the ucvm_setup.py script which will run to the ucvm installation
@@ -53,29 +53,29 @@ RUN chmod -R og+rw /app
 
 # Retrieve and build UCVM
 WORKDIR /app
-RUN git clone https://github.com/sceccode/ucvm.git -b withSFCVM src
+RUN git clone https://github.com/sceccode/ucvm.git -b withSFCVM src 
 
 # An external script has selected the correct model files for this image in the largefiles dir
 # by setting the model abbreviations in the largefile_inputs.txt file
-WORKDIR /app/src/largefiles
+WORKDIR /app/ucvm/largefiles
 RUN ./get_largefiles.py -m $MODELID && ./stage_largefiles.py
 
 WORKDIR /app/src
-RUN CVM_LARGEDATA_DIR="/Users/mei/scec/CVM_DATASET_DIRECTORY" ./ucvm_setup.py -a -d -p /app/ucvm >& ./ucvm_setup_install.log
+RUN ./ucvm_setup.py -a -d -p /app/ucvm >& ./ucvm_setup_install.log
 
 # Remove the src directories to save space
 #WORKDIR /app
-#RUN rm -rf src
+#RUN rm -rf ucvm 
 
 # Install plotting libraries
-WORKDIR /app/ucvm
+WORKDIR /app/plotting
 git clone https://github.com/SCECcode/ucvm_metadata_utilities metadata_utilities
 cd metadata_utilities
 source ./setup.sh
-WORKDIR /app/ucvm
+
+WORKDIR /app/plotting
 RUN git clone https://github.com/SCECcode/ucvm_plotting.git -b withAnaconda3
-cd /app/ucvm/ucvm_plotting
-RUN ./unpack-dist
+cd /app/plotting/ucvm_plotting
 conda install dist/ucvm_plotting-0.0.6.tar.gz
 
 
