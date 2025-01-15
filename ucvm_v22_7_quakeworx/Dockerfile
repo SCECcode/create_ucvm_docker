@@ -90,12 +90,10 @@ VOLUME /app/target
 WORKDIR /app
 COPY examples /app/examples
 
-RUN chmod -R og+rw /app/ucvm /app/examples && \
-    chmod -R +x /app/examples/*.py /app/examples/*.sh && \
-    chmod -R og+rw /app/target
-
-# Define directory that will be mounted and used for file input/output
-#
+# Added steps to manage home directory permissions
+RUN chown -R $APP_UID:$APP_GID /app && \
+    chmod -R og+rw /app/ucvm /app/examples && \
+    chmod -R +x /app/examples/*.py /app/examples/*.sh
 
 # Add metadata to dockerfile using labels
 LABEL org.label-schema.build-date=$BDATE

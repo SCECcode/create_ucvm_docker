@@ -3,9 +3,10 @@
 FROM rockylinux:8.5
 ENV LANG=C.UTF-8 LC_ALL=C.UTF-8
 
-ENV UCVM_TOP_DIR=/app/ucvm
+ENV UCVM_DIR=/app/ucvm
 ENV PLOTTING_TOP_DIR=/app/plotting
-ENV CVM_LARGEDATA_DIR=/app/ucvm/cvm-large-dataset
+ENV CVM_TARGET_VOLUME=/app/target
+ENV CVM_LARGEDATA_DIR=/app/cvm-large-dataset
 
 # Define Build and runtime arguments
 ARG APP_UNAME
@@ -57,8 +58,9 @@ RUN git clone https://github.com/sceccode/ucvm.git -b withSFCVM src
 
 # An external script has selected the correct model files for this image in the largefiles dir
 # by setting the model abbreviations in the largefile_inputs.txt file
-WORKDIR /app/ucvm/largefiles
-RUN ./get_largefiles.py -m $MODELID && ./stage_largefiles.py
+WORKDIR /app/src/largefiles
+RUN ./get_largefiles.py -m $MODELID && \
+    ./stage_largefiles.py
 
 WORKDIR /app/src
 RUN ./ucvm_setup.py -a -d -p /app/ucvm >& ./ucvm_setup_install.log
@@ -75,21 +77,26 @@ RUN git clone https://github.com/SCECcode/ucvm_metadata_utilities metadata_utili
 
 WORKDIR /app/plotting
 RUN git clone https://github.com/SCECcode/ucvm_plotting.git -b withAnaconda3 && \
-    cd /app/ucvm/ucvm_plotting && \
+    cd ucvm_plotting && \
     conda install dist/ucvm_plotting-0.0.6.tar.gz
 
 # Define file input/output mounted disk
-#
-VOLUME /app/target
+# /app/target
+VOLUME $CVM_TARGET_VOLUME
+
+# Define cvm large dataset mounted disk
+# /app/cvm-large-dataset
+VOLUME $CVM_LARGEDATA_DIR
 
 # Setup user with test input files
 #
 WORKDIR /app
 COPY examples /app/examples
 
-RUN chmod -R og+rw /app/ucvm /app/examples && \
+RUN chmod -R og+rw $UCVM_DIR /app/examples && \
     chmod -R +x /app/examples/*.py /app/examples/*.sh && \
-    chmod -R og+rw /app/target
+    chmod -R og+rw $CVM_TARGET_VOLUME && \
+    chmod -R og+r $CVM_LARGEDATA_DIR && \
 
 # Define directory that will be mounted and used for file input/output
 #
@@ -105,7 +112,7 @@ LABEL version="ucvm_v25_2"
 USER $APP_UNAME
 RUN echo "source /usr/local/opt/conda/etc/profile.d/conda.sh" >> ~/.bashrc && \
     echo "source /app/ucvm/conf/ucvm_env.sh" >> ~/.bashrc && \
-    echo "export CVM_LARGEDATA_DIR=/Users/mei/scec/CVM_DATASET_DIRECTORY" >> ~/.bashrc
+    echo "export CVM_LARGEDATA_DIR="$CVM_LARGEDATA_DIR >> ~/.bashrc
 
 SHELL ["/bin/bash", "--login", "-c"]
 WORKDIR /app/target
