@@ -23,15 +23,22 @@ BDATE=$BDATE
 # and for building the model and adding the correct date into the label
 RUN echo $APP_UNAME $APP_GRPNAME $APP_UID $APP_GID $MODELID $BDATE
 
-RUN yum clean all && yum -y update && yum -y\
- groupinstall "Development Tools" && yum -y\
- install wget yum-utils gcc-gfortran gcc-c++ fftw-devel which python38
+RUN yum clean all && \
+    yum -y update && \
+    yum -y groupinstall "Development Tools" && \
+    yum -y install curl wget yum-utils gcc-gfortran gcc-c++ fftw-devel which python38 python38-devel
 
 # Create python link as root before setting user. This is needed by
 # the ucvm_setup.py script which will run to the ucvm installation
 # To support the python2 plotting library, we will install Anaconda with a python2
 # virtual environment in this image
 RUN ln -s /usr/bin/python3 /usr/bin/python
+
+# Install JupyterLab
+# RUN python -m pip install --no-cache-dir jupyterlab
+# Expose the port JupyterLab will run on
+EXPOSE 8888
+
 
 # Create python link as root before setting user. This is needed by
 # the ucvm_setup.py script which will run to the ucvm installation
@@ -46,7 +53,7 @@ RUN wget --quiet https://repo.anaconda.com/archive/Anaconda3-2022.05-Linux-x86_6
     find /usr/local/opt/conda/ -follow -type f -name '*.js.map' -delete && \
     /usr/local/opt/conda/bin/conda clean -afy
 
-RUN /usr/local/opt/conda/bin/conda create -n Python2 python=2.7.15 scipy pip numpy matplotlib basemap basemap-data-hires
+RUN /usr/local/opt/conda/bin/conda create -n Python2 python=2.7.15 scipy pip numpy matplotlib basemap basemap-data-hires jupyterlab
 
 # Setup Owners
 # Documents say this groupadd is needed when you build on linux, but not on Mac
@@ -108,7 +115,9 @@ RUN echo "source /usr/local/opt/conda/etc/profile.d/conda.sh" >> ~/.bashrc && \
     echo "source /app/ucvm/conf/ucvm_env.sh" >> ~/.bashrc && \
     echo "conda activate Python2" >> ~/.bashrc
 
-SHELL ["/bin/bash", "--login", "-c"]
-WORKDIR /app/target
-ENTRYPOINT ["/bin/bash"]
+#SHELL ["/bin/bash", "--login", "-c"]
+#WORKDIR /app/target
+#ENTRYPOINT ["/bin/bash"]
 
+# Define the command to run JupyterLab
+CMD ["jupyter", "lab", "--ip=0.0.0.0", "--port=8888", "--allow-root"]

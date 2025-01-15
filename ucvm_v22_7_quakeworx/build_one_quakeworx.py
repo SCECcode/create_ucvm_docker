@@ -20,18 +20,6 @@ if __name__ == '__main__':
     day=dt.day
     mdate="%02d%02d"%(month,day)
 
-    all_models = ["cvms5",
-              "cca",
-              "cvms",
-              "cvmsi",
-              "cencal",
-              "cvmh",
-              "albacore",
-              "cvlsu",
-              "ivlsu",
-              "wfcvm",
-              "cvmhlabn cvmhsgbn cvmhvbn cvmhibbn cvmhrbn cvmhstbn cvmhsbbn cvmhsbcbn cvmhsmbn"]
-
     models = ["cvmh"]
 
     for m in models:
@@ -53,6 +41,5 @@ if __name__ == '__main__':
 
     for m in models:
         print("pushing models: " + m + " with sceccode/ucvm_227_%s_quakeworx:%s" % (m,mdate))
-        cmd = "docker push sceccode/ucvm_227_%s_quakeworx:%s" % (m,mdate)
         cmd = "docker push sceccode/ucvm_227_%s_quakeworx:latest" % (m)
         os.system(cmd)
