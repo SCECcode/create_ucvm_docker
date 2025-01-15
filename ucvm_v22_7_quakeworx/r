@@ -1,0 +1,5 @@
+# -rm removes container on exit
+# -it indicates inteactive + --tty so that users are at an interactive tty command line when the container starts
+
+docker run -p 8888:8888 --rm -it -e DISPLAY=$DISPLAY --mount type=bind,source="$(pwd)"/target,destination=/home/ucvmuser/target sceccode/ucvm_227_cvmh:0710
+#docker run -p 8888:8888 --rm -it --env=DISPLAY --mount type=bind,source="$(pwd)"/target,destination=/home/ucvmuser/target sceccode/ucvm_227_cvmh:0710
