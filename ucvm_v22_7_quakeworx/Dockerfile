@@ -53,7 +53,9 @@ RUN wget --quiet https://repo.anaconda.com/archive/Anaconda3-2022.05-Linux-x86_6
     find /usr/local/opt/conda/ -follow -type f -name '*.js.map' -delete && \
     /usr/local/opt/conda/bin/conda clean -afy
 
-RUN /usr/local/opt/conda/bin/conda create -n Python2 python=2.7.15 scipy pip numpy matplotlib basemap basemap-data-hires jupyterlab
+RUN /usr/local/opt/conda/bin/conda create -n Python2 python=2.7.15 scipy pip numpy matplotlib basemap basemap-data-hires 
+
+RUN /usr/local/opt/conda/bin/conda install jupyterlab
 
 # Setup Owners
 # Documents say this groupadd is needed when you build on linux, but not on Mac
@@ -113,7 +115,12 @@ LABEL version="ucvm_v22_7"
 USER $APP_UNAME
 RUN echo "source /usr/local/opt/conda/etc/profile.d/conda.sh" >> ~/.bashrc && \
     echo "source /app/ucvm/conf/ucvm_env.sh" >> ~/.bashrc && \
+    echo "export PATH=\"/usr/local/opt/conda/bin:$PATH\"" && \
     echo "conda activate Python2" >> ~/.bashrc
+
+ENV PATH="/usr/local/opt/conda/bin:${PATH}"
+ARG PATH="/usr/local/opt/conda/bin:${PATH}"
+    
 
 #SHELL ["/bin/bash", "--login", "-c"]
 #WORKDIR /app/target
