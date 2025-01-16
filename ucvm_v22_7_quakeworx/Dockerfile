@@ -127,4 +127,4 @@ ARG PATH="/usr/local/opt/conda/bin:${PATH}"
 #ENTRYPOINT ["/bin/bash"]
 
 # Define the command to run JupyterLab
-CMD ["jupyter", "lab", "--ip=0.0.0.0", "--port=8888", "--allow-root"]
+CMD ["jupyter", "lab", "--ip=0.0.0.0", "--port=8888", "--no-browser"]
