@@ -1,9 +1,16 @@
 # -rm removes container on exit
 # -it indicates inteactive + --tty so that users are at an interactive tty command line when the container starts
+#
+#docker rmi 97c9eff227f3
 
 #docker pull sceccode/ucvm_227_cvmh_quakeworx:latest
 #docker rm $(docker ps -a | grep Exit | cut -d ' ' -f 1)
 
+#docker run -p 8888:8888 --rm -it --mount type=bind,source="$(pwd)"/target,destination=/app/target ucvm_227_cvmh_quakeworx:0116
+
 docker run -p 8888:8888 --rm -it --mount type=bind,source="$(pwd)"/target,destination=/app/target sceccode/ucvm_227_cvmh_quakeworx:latest
 
 #docker run -p 8888:8888 --rm -it --mount type=bind,source="$(pwd)"/target,destination=/home/ucvmuser/target sceccode/ucvm_227_cvmh:0710
+#
+
+#/expanse/lustre/projects/usc143/qwxdev/apps/expanse/rocky8.8/ucvm_227/singularity/xxx.sif
