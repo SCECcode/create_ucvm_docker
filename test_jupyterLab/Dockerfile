@@ -31,6 +31,6 @@ EXPOSE 8888
 WORKDIR /app
 
 # Start JupyterLab when the container is run
-CMD ["jupyter", "lab", "--ip=0.0.0.0", "--port=8888", "--no-browser"]
+CMD ["jupyter", "lab", "--ip=0.0.0.0", "--port=8888", "--no-browser", "--allow-root"]
 
 

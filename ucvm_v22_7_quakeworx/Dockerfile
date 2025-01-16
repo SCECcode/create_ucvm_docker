@@ -48,10 +48,8 @@ WORKDIR /app
 RUN wget --quiet https://repo.anaconda.com/archive/Anaconda3-2022.05-Linux-x86_64.sh -O anaconda.sh && \
     /bin/bash anaconda.sh -b -p /usr/local/opt/conda && \
     rm anaconda.sh && \
-    ln -s /usr/local/opt/conda/etc/profile.d/conda.sh /etc/profile.d/conda.sh && \
-    find /usr/local/opt/conda/ -follow -type f -name '*.a' -delete && \
-    find /usr/local/opt/conda/ -follow -type f -name '*.js.map' -delete && \
-    /usr/local/opt/conda/bin/conda clean -afy
+    ./usr/local/opt/conda/bin/activate && \
+    conda init bash 
 
 RUN /usr/local/opt/conda/bin/conda create -n Python2 python=2.7.15 scipy pip numpy matplotlib basemap basemap-data-hires 
 
@@ -127,4 +125,4 @@ ARG PATH="/usr/local/opt/conda/bin:${PATH}"
 #ENTRYPOINT ["/bin/bash"]
 
 # Define the command to run JupyterLab
-CMD ["jupyter", "lab", "--ip=0.0.0.0", "--port=8888", "--no-browser"]
+CMD ["jupyter", "lab", "--ip=0.0.0.0", "--port=8888", "--no-browser", "--allow-root"]
