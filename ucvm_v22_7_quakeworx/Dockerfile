@@ -23,6 +23,22 @@ BDATE=$BDATE
 # and for building the model and adding the correct date into the label
 RUN echo $APP_UNAME $APP_GRPNAME $APP_UID $APP_GID $MODELID $BDATE
 
+# Setup Owners
+# Documents say this groupadd is needed when you build on linux, but not on Mac
+RUN groupadd -f --non-unique --gid $APP_GID $APP_GRPNAME 
+RUN useradd -ms /bin/bash -g $APP_GRPNAME --uid $APP_UID $APP_UNAME
+
+# Added explicit HOME environment variable
+# /home/ucvmuser
+ENV HOME=/home/$APP_UNAME
+
+# Added steps to manage home directory permissions
+RUN mkdir -p $HOME/.local \
+    && chown -R $APP_UID:$APP_GID $HOME \
+    && chmod -R 755 $HOME
+
+WORKDIR /home/$APP_UNAME
+
 RUN yum clean all && \
     yum -y update && \
     yum -y groupinstall "Development Tools" && \
@@ -34,73 +50,61 @@ RUN yum clean all && \
 # virtual environment in this image
 RUN ln -s /usr/bin/python3 /usr/bin/python
 
-# Install JupyterLab
-# RUN python -m pip install --no-cache-dir jupyterlab
-# Expose the port JupyterLab will run on
-EXPOSE 8888
-
-
 # Create python link as root before setting user. This is needed by
 # the ucvm_setup.py script which will run to the ucvm installation
 # To support the python2 plotting library, we will install Anaconda with a python2
 # virtual environment in this image
-WORKDIR /app
-RUN wget --quiet https://repo.anaconda.com/archive/Anaconda3-2022.05-Linux-x86_64.sh -O anaconda.sh && \
+WORKDIR /home/$APP_UNAME/app
+RUN wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O anaconda.sh && \
+    mkdir /home/$APP_UNAME/.conda && \
     /bin/bash anaconda.sh -b -p /usr/local/opt/conda && \
-    rm anaconda.sh && \
-    ./usr/local/opt/conda/bin/activate && \
-    conda init bash 
+    rm -f anaconda.sh && \
+    echo "Running $(conda --version)" && \
+    /usr/local/opt/conda/bin/conda update conda && \
+    /usr/local/opt/conda/bin/conda init bash
 
-RUN /usr/local/opt/conda/bin/conda create -n Python2 python=2.7.15 scipy pip numpy matplotlib basemap basemap-data-hires 
+#RUN wget --quiet https://repo.anaconda.com/archive/Anaconda3-2022.05-Linux-x86_64.sh -O anaconda.sh && \
+#    /bin/bash anaconda.sh -b -p /usr/local/opt/conda && \
+#    rm anaconda.sh && \
+#    ln -s /usr/local/opt/conda/etc/profile.d/conda.sh /etc/profile.d/conda.sh && \
+#    find /usr/local/opt/conda/ -follow -type f -name '*.a' -delete && \
+#    find /usr/local/opt/conda/ -follow -type f -name '*.js.map' -delete && \
+#    /usr/local/opt/conda/bin/conda clean -afy && \
+#    /usr/local/opt/conda/bin/conda init bash
 
-RUN /usr/local/opt/conda/bin/conda install jupyterlab
+RUN echo "source /usr/local/opt/conda/etc/profile.d/conda.sh" >> /home/$APP_UNAME/.bashrc && \
+    bash /home/$APP_UNAME/.bashrc && \
+    /usr/local/opt/conda/bin/conda install -y pip
 
-# Setup Owners
-# Documents say this groupadd is needed when you build on linux, but not on Mac
-RUN groupadd --non-unique --gid $APP_GID $APP_GRPNAME && \
-    useradd -ms /bin/bash -G $APP_GRPNAME --uid $APP_UID $APP_UNAME
+#RUN /usr/local/opt/conda/bin/conda create -n Python2 -y python=2.7.15 scipy numpy matplotlib basemap basemap-data-hires 
+RUN /usr/local/opt/conda/bin/conda create -n plotPython -y numpy matplotlib basemap basemap-data-hires 
 
-RUN chmod -R og+rw /app
+RUN /usr/local/opt/conda/bin/conda install -y jupyterlab
+
+
+#### building user app part 
 
 # Retrieve and build UCVM
-WORKDIR /app
+WORKDIR /home/$APP_UNAME/app
 RUN git clone https://github.com/sceccode/ucvm.git src
 
 # An external script has selected the correct model files for this image in the largefiles dir
 # by setting the model abbreviations in the largefile_inputs.txt file
-WORKDIR /app/src/largefiles
+WORKDIR /home/$APP_UNAME/app/src/largefiles
 RUN ./get_largefiles.py -m $MODELID && ./stage_largefiles.py
 
-WORKDIR /app/src
-RUN ./ucvm_setup.py -a -d -p /app/ucvm >& ./ucvm_setup_install.log
+WORKDIR /home/$APP_UNAME/app/src
+RUN ./ucvm_setup.py -a -d -p /home/$APP_UNAME/app/ucvm >& ./ucvm_setup_install.log
 
 # Remove the src directories to save space
-WORKDIR /app
+WORKDIR /home/$APP_UNAME/app
 RUN rm -rf src
 
 # Install plotting libraries
-WORKDIR /app/ucvm
-RUN echo "conda activate Python2" >> ~/.bashrc
-SHELL ["/bin/bash", "--login", "-c"]
-
+WORKDIR /home/$APP_UNAME/app/ucvm
 RUN git clone https://github.com/SCECcode/ucvm_plotting.git
-WORKDIR /app/ucvm/ucvm_plotting
-RUN ./unpack-dist
-
-
-# Define file input/output mounted disk
-#
-VOLUME /app/target
-
-# Setup user with test input files
-#
-WORKDIR /app
-COPY examples /app/examples
-
-# Added steps to manage home directory permissions
-RUN chown -R $APP_UID:$APP_GID /app && \
-    chmod -R og+rw /app/ucvm /app/examples && \
-    chmod -R +x /app/examples/*.py /app/examples/*.sh
+WORKDIR /home/$APP_UNAME/app/ucvm/ucvm_plotting
+##RUN ./unpack-dist
 
 # Add metadata to dockerfile using labels
 LABEL org.label-schema.build-date=$BDATE
@@ -110,19 +114,31 @@ LABEL org.scec.responsible_person="Philip Maechling"
 LABEL org.scec.primary_contact="maechlin@usc.edu"
 LABEL version="ucvm_v22_7"
 
+RUN echo "source /home/$APP_UNAME/app/ucvm/conf/ucvm_env.sh" >> /home/$APP_UNAME/.bashrc && \
+    echo "export PATH=\"/usr/local/opt/conda/bin:$PATH\"" >> /home/$APP_UNAME/.bashrc && \
+    echo "conda activate plotPython" >> /home/$APP_UNAME/.bashrc
+
+# Added steps to manage home directory permissions
+RUN mkdir -p $HOME/.local \
+    && chown -R $APP_UID:$APP_GID $HOME \
+    && chmod -R 755 $HOME
+
 USER $APP_UNAME
-RUN echo "source /usr/local/opt/conda/etc/profile.d/conda.sh" >> ~/.bashrc && \
-    echo "source /app/ucvm/conf/ucvm_env.sh" >> ~/.bashrc && \
-    echo "export PATH=\"/usr/local/opt/conda/bin:$PATH\"" && \
-    echo "conda activate Python2" >> ~/.bashrc
 
 ENV PATH="/usr/local/opt/conda/bin:${PATH}"
 ARG PATH="/usr/local/opt/conda/bin:${PATH}"
-    
 
-#SHELL ["/bin/bash", "--login", "-c"]
-#WORKDIR /app/target
-#ENTRYPOINT ["/bin/bash"]
+WORKDIR /home/$APP_UNAME
 
+# Expose the port JupyterLab will run on
+EXPOSE 8888
+
+# Define file input/output mounted disk
+VOLUME /home/$APP_UNAME/app/target
+
+SHELL ["/bin/bash", "--login", "-c"]
+
+ENTRYPOINT ["/bin/bash"]
 # Define the command to run JupyterLab
-CMD ["jupyter", "lab", "--ip=0.0.0.0", "--port=8888", "--no-browser", "--allow-root"]
+#ENTRYPOINT ["/usr/local/opt/conda/bin/jupyter", "lab", "--ip=0.0.0.0", "--no-browser", "--allow-root"]
+
