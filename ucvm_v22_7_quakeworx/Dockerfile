@@ -1,6 +1,6 @@
 # Create UCVM model Docker Image based on rockylinux which is similar to Centos-8 used at USC CARC
 
-FROM rockylinux:8.5
+FROM rockylinux:8.9
 ENV LANG=C.UTF-8 LC_ALL=C.UTF-8
 
 # Define Build and runtime arguments
@@ -74,7 +74,7 @@ RUN wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -
 
 RUN echo "source /usr/local/opt/conda/etc/profile.d/conda.sh" >> /home/$APP_UNAME/.bashrc && \
     bash /home/$APP_UNAME/.bashrc && \
-    /usr/local/opt/conda/bin/conda install -y pip
+    /usr/local/opt/conda/bin/conda install -y pip bzip2
 
 #RUN /usr/local/opt/conda/bin/conda create -n Python2 -y python=2.7.15 scipy numpy matplotlib basemap basemap-data-hires 
 RUN /usr/local/opt/conda/bin/conda create -n plotPython -y numpy matplotlib basemap basemap-data-hires 
@@ -134,11 +134,11 @@ WORKDIR /home/$APP_UNAME
 EXPOSE 8888
 
 # Define file input/output mounted disk
-VOLUME /home/$APP_UNAME/app/target
+#VOLUME /home/$APP_UNAME/app/target
 
 SHELL ["/bin/bash", "--login", "-c"]
 
-ENTRYPOINT ["/bin/bash"]
+#ENTRYPOINT ["/bin/bash"]
 # Define the command to run JupyterLab
-#ENTRYPOINT ["/usr/local/opt/conda/bin/jupyter", "lab", "--ip=0.0.0.0", "--no-browser", "--allow-root"]
+ENTRYPOINT ["/usr/local/opt/conda/bin/jupyter", "lab", "--ip=0.0.0.0", "--no-browser", "--allow-root"]
 

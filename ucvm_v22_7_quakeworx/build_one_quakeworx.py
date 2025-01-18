@@ -29,11 +29,11 @@ if __name__ == '__main__':
             "--build-arg APP_UID=1000 --build-arg APP_GID=1000 --build-arg MODELID=%s --build-arg BDATE=%s"%(m,mdate,m,mdate)
         os.system(cmd)
 
-        cmd = "docker tag ucvm_227_%s:%s sceccode/ucvm_227_%s:%s"%(m,mdate,m,mdate)
+        cmd = "docker tag ucvm_227_%s_quakeworx:%s sceccode/ucvm_227_%s_quakeworx:%s"%(m,mdate,m,mdate)
         print(cmd)
-#        os.system(cmd)
+        os.system(cmd)
 
         print("pushing models: " + m + " with sceccode/ucvm_227_%s_quakeworx:%s" % (m,mdate))
         cmd = "docker push sceccode/ucvm_227_%s_quakeworx:%s" % (m,mdate)
         print(cmd)
-#        os.system(cmd)
+        os.system(cmd)
