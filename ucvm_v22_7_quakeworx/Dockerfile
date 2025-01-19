@@ -148,7 +148,7 @@ EXPOSE 8888
 # Define file input/output mounted disk
 #VOLUME /home/$APP_UNAME/app/target
 
-CMD ["/bin/bash", "--login" ]
+#CMD ["/bin/bash", "--login" ]
 # Define the command to run JupyterLab
-#ENTRYPOINT ["/usr/local/opt/conda/bin/jupyter", "lab", "--ip=0.0.0.0", "--no-browser", "--allow-root"]
+ENTRYPOINT ["/usr/local/opt/conda/bin/jupyter", "lab", "--ip=0.0.0.0", "--no-browser", "--allow-root"]
 
