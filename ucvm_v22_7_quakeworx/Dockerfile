@@ -76,18 +76,26 @@ RUN wget --quiet https://repo.anaconda.com/archive/Anaconda3-2022.05-Linux-x86_6
 ENV PATH="/usr/local/opt/conda/bin:${PATH}"
 ARG PATH="/usr/local/opt/conda/bin:${PATH}"
 
+#RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O anaconda.sh && \
+#    /bin/bash anaconda.sh -b -p /usr/local/opt/conda && \
+#    rm anaconda.sh && \
+#    ln -s /usr/local/opt/conda/etc/profile.d/conda.sh /etc/profile.d/conda.sh && \
+#    find /usr/local/opt/conda/ -follow -type f -name '*.a' -delete && \
+#    find /usr/local/opt/conda/ -follow -type f -name '*.js.map' -delete && \
+#    /usr/local/opt/conda/bin/conda clean -afy && \
+#    /usr/local/opt/conda/bin/conda init bash
+
 RUN echo "source /usr/local/opt/conda/etc/profile.d/conda.sh" >> /home/$APP_UNAME/.bashrc && \
     bash /home/$APP_UNAME/.bashrc && \
     /usr/local/opt/conda/bin/conda install -y pip bzip2
 
 #RUN /usr/local/opt/conda/bin/conda create -n plotPython -y python=2.7.15 pip numpy matplotlib basemap basemap-data-hires 
-RUN /usr/local/opt/conda/bin/conda create -n plotPython -y pip numpy matplotlib basemap basemap-data-hires 
+RUN /usr/local/opt/conda/bin/conda create -n plotPython -y pip scipy numpy matplotlib basemap basemap-data-hires 
 
 RUN /usr/local/opt/conda/bin/conda install -y jupyterlab
 
 
 #### building user app part 
-
 # Retrieve and build UCVM
 WORKDIR /home/$APP_UNAME/app
 RUN git clone https://github.com/sceccode/ucvm.git src
@@ -104,11 +112,18 @@ RUN ./ucvm_setup.py -a -d -p /home/$APP_UNAME/app/ucvm >& ./ucvm_setup_install.l
 WORKDIR /home/$APP_UNAME/app
 RUN rm -rf src
 
-# Install plotting libraries
-WORKDIR /home/$APP_UNAME/app/ucvm
+ENV PATH="/usr/local/opt/conda/bin:${PATH}"
+ARG PATH="/usr/local/opt/conda/bin:${PATH}"
+ENV PYTHONPATH="/home/ucvmuser/.local/lib/python3.12/site-packages/pycvm:${PYTHONPATH}"
+ARG PYTHONPATH="/home/ucvmuser/.local/lib/python3.12/site-packages/pycvm:${PYTHONPATH}"
+
+# Install plotting libraries as root
+WORKDIR /home/$APP_UNAME/app
 RUN git clone https://github.com/SCECcode/ucvm_plotting.git
-WORKDIR /home/$APP_UNAME/app/ucvm/ucvm_plotting
+WORKDIR /home/$APP_UNAME/app/ucvm_plotting
 RUN ./unpack-dist
+## not able to unpack into system spot and so ended up at
+## /home/ucvmuser/.local/lib/python3.12/site-packages/pycvm/
 
 # Add metadata to dockerfile using labels
 LABEL org.label-schema.build-date=$BDATE
@@ -123,9 +138,8 @@ RUN echo "source /home/$APP_UNAME/app/ucvm/conf/ucvm_env.sh" >> /home/$APP_UNAME
     echo "conda activate plotPython" >> /home/$APP_UNAME/.bashrc
 
 # Added steps to manage home directory permissions
-RUN mkdir -p $HOME/.local \
-    && chown -R $APP_UID:$APP_GID $HOME \
-    && chmod -R 755 $HOME
+RUN chown -R $APP_UID:$APP_GID $HOME && \
+    chmod -R 755 $HOME
 
 USER $APP_UNAME
 
@@ -139,7 +153,7 @@ VOLUME /home/$APP_UNAME/app/target
 
 SHELL ["/bin/bash", "--login", "-c"]
 
-ENTRYPOINT ["/bin/bash"]
+CMD ["/bin/bash" ]
 # Define the command to run JupyterLab
 #ENTRYPOINT ["/usr/local/opt/conda/bin/jupyter", "lab", "--ip=0.0.0.0", "--no-browser", "--allow-root"]
 
