@@ -1,6 +1,6 @@
 # Create UCVM model Docker Image based on rockylinux which is similar to Centos-8 used at USC CARC
 
-FROM rockylinux:8.9
+FROM rockylinux:8.5
 ENV LANG=C.UTF-8 LC_ALL=C.UTF-8
 
 # Define Build and runtime arguments
@@ -55,29 +55,33 @@ RUN ln -s /usr/bin/python3 /usr/bin/python
 # To support the python2 plotting library, we will install Anaconda with a python2
 # virtual environment in this image
 WORKDIR /home/$APP_UNAME/app
-RUN wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O anaconda.sh && \
-    mkdir /home/$APP_UNAME/.conda && \
+#RUN wget --quiet https://repo.anaconda.com/archive/Anaconda3-2024.02-1-Linux-x86_64.sh -O anaconda.sh && \
+#RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O anaconda.sh && \
+#    mkdir /home/$APP_UNAME/.conda && \
+#    /bin/bash anaconda.sh -b -p /usr/local/opt/conda && \
+#    rm -f anaconda.sh && \
+#    echo "Running $(conda --version)" && \
+#    /usr/local/opt/conda/bin/conda update conda && \
+#    /usr/local/opt/conda/bin/conda init bash
+
+RUN wget --quiet https://repo.anaconda.com/archive/Anaconda3-2022.05-Linux-x86_64.sh -O anaconda.sh && \
     /bin/bash anaconda.sh -b -p /usr/local/opt/conda && \
-    rm -f anaconda.sh && \
-    echo "Running $(conda --version)" && \
-    /usr/local/opt/conda/bin/conda update conda && \
+    rm anaconda.sh && \
+    ln -s /usr/local/opt/conda/etc/profile.d/conda.sh /etc/profile.d/conda.sh && \
+    find /usr/local/opt/conda/ -follow -type f -name '*.a' -delete && \
+    find /usr/local/opt/conda/ -follow -type f -name '*.js.map' -delete && \
+    /usr/local/opt/conda/bin/conda clean -afy && \
     /usr/local/opt/conda/bin/conda init bash
 
-#RUN wget --quiet https://repo.anaconda.com/archive/Anaconda3-2022.05-Linux-x86_64.sh -O anaconda.sh && \
-#    /bin/bash anaconda.sh -b -p /usr/local/opt/conda && \
-#    rm anaconda.sh && \
-#    ln -s /usr/local/opt/conda/etc/profile.d/conda.sh /etc/profile.d/conda.sh && \
-#    find /usr/local/opt/conda/ -follow -type f -name '*.a' -delete && \
-#    find /usr/local/opt/conda/ -follow -type f -name '*.js.map' -delete && \
-#    /usr/local/opt/conda/bin/conda clean -afy && \
-#    /usr/local/opt/conda/bin/conda init bash
+ENV PATH="/usr/local/opt/conda/bin:${PATH}"
+ARG PATH="/usr/local/opt/conda/bin:${PATH}"
 
 RUN echo "source /usr/local/opt/conda/etc/profile.d/conda.sh" >> /home/$APP_UNAME/.bashrc && \
     bash /home/$APP_UNAME/.bashrc && \
     /usr/local/opt/conda/bin/conda install -y pip bzip2
 
-#RUN /usr/local/opt/conda/bin/conda create -n Python2 -y python=2.7.15 scipy numpy matplotlib basemap basemap-data-hires 
-RUN /usr/local/opt/conda/bin/conda create -n plotPython -y numpy matplotlib basemap basemap-data-hires 
+#RUN /usr/local/opt/conda/bin/conda create -n plotPython -y python=2.7.15 pip numpy matplotlib basemap basemap-data-hires 
+RUN /usr/local/opt/conda/bin/conda create -n plotPython -y pip numpy matplotlib basemap basemap-data-hires 
 
 RUN /usr/local/opt/conda/bin/conda install -y jupyterlab
 
@@ -104,7 +108,7 @@ RUN rm -rf src
 WORKDIR /home/$APP_UNAME/app/ucvm
 RUN git clone https://github.com/SCECcode/ucvm_plotting.git
 WORKDIR /home/$APP_UNAME/app/ucvm/ucvm_plotting
-##RUN ./unpack-dist
+RUN ./unpack-dist
 
 # Add metadata to dockerfile using labels
 LABEL org.label-schema.build-date=$BDATE
@@ -125,20 +129,17 @@ RUN mkdir -p $HOME/.local \
 
 USER $APP_UNAME
 
-ENV PATH="/usr/local/opt/conda/bin:${PATH}"
-ARG PATH="/usr/local/opt/conda/bin:${PATH}"
-
 WORKDIR /home/$APP_UNAME
 
 # Expose the port JupyterLab will run on
 EXPOSE 8888
 
 # Define file input/output mounted disk
-#VOLUME /home/$APP_UNAME/app/target
+VOLUME /home/$APP_UNAME/app/target
 
 SHELL ["/bin/bash", "--login", "-c"]
 
-#ENTRYPOINT ["/bin/bash"]
+ENTRYPOINT ["/bin/bash"]
 # Define the command to run JupyterLab
-ENTRYPOINT ["/usr/local/opt/conda/bin/jupyter", "lab", "--ip=0.0.0.0", "--no-browser", "--allow-root"]
+#ENTRYPOINT ["/usr/local/opt/conda/bin/jupyter", "lab", "--ip=0.0.0.0", "--no-browser", "--allow-root"]
 
