@@ -31,11 +31,11 @@ if __name__ == '__main__':
             %(m,mdate,tuser,tuser,m,mdate)
         os.system(cmd)
 
-        cmd = "docker tag ucvm_227_%s_quakeworx:%s sceccode/ucvm_227_%s_quakeworx:%s"%(m,mdate,m,mdate)
+        cmd = "docker tag tucvm_227_%s_quakeworx:%s sceccode/tucvm_227_%s_quakeworx:%s"%(m,mdate,m,mdate)
         print(cmd)
-        os.system(cmd)
+#        os.system(cmd)
 
-        print("pushing models: " + m + " with sceccode/ucvm_227_%s_quakeworx:%s" % (m,mdate))
-        cmd = "docker push sceccode/ucvm_227_%s_quakeworx:%s" % (m,mdate)
+        print("pushing models: " + m + " with sceccode/tucvm_227_%s_quakeworx:%s" % (m,mdate))
+        cmd = "docker push sceccode/tucvm_227_%s_quakeworx:%s" % (m,mdate)
         print(cmd)
 #        os.system(cmd)
