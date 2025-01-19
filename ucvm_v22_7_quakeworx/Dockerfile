@@ -33,9 +33,10 @@ RUN useradd -ms /bin/bash -g $APP_GRPNAME --uid $APP_UID $APP_UNAME
 ENV HOME=/home/$APP_UNAME
 
 # Added steps to manage home directory permissions
-RUN mkdir -p $HOME/.local \
-    && chown -R $APP_UID:$APP_GID $HOME \
-    && chmod -R 755 $HOME
+RUN mkdir -p $HOME/.local && \
+    mkdir -p $HOME/result && \
+    chown -R $APP_UID:$APP_GID $HOME  &&\
+    chmod -R 755 $HOME
 
 WORKDIR /home/$APP_UNAME
 
@@ -106,21 +107,28 @@ WORKDIR /home/$APP_UNAME/app/src/largefiles
 RUN ./get_largefiles.py -m $MODELID && ./stage_largefiles.py
 
 WORKDIR /home/$APP_UNAME/app/src
-RUN ./ucvm_setup.py -a -d -p /home/$APP_UNAME/app/ucvm >& ./ucvm_setup_install.log
+RUN ./ucvm_setup.py -a -d -p /home/$APP_UNAME/app/ucvm >& ./ucvm_setup_install.log && \
+    source /home/$APP_UNAME/app/ucvm/conf/ucvm_env.sh
+
 
 # Remove the src directories to save space
 WORKDIR /home/$APP_UNAME/app
 RUN rm -rf src
 
-ENV PATH="/usr/local/opt/conda/bin:${PATH}"
-ARG PATH="/usr/local/opt/conda/bin:${PATH}"
-ENV PYTHONPATH="/home/ucvmuser/.local/lib/python3.12/site-packages/pycvm:${PYTHONPATH}"
-ARG PYTHONPATH="/home/ucvmuser/.local/lib/python3.12/site-packages/pycvm:${PYTHONPATH}"
+ENV PATH="/usr/local/opt/conda/bin:${HOME}/.local/bin:${PATH}"
+ARG PATH="/usr/local/opt/conda/bin:${HOME}/.local/bin:${PATH}"
+ENV PYTHONPATH="/usr/local/opt/conda/envs/plotPython/lib/python3.12/site-packages:${HOME}/.local/lib/python3.12/site-packages/pycvm:${PYTHONPATH}"
+ARG PYTHONPATH="/usr/local/opt/conda/envs/plotPython/lib/python3.12/site-packages:${HOME}/.local/lib/python3.12/site-packages/pycvm:${PYTHONPATH}"
+
+#import site
+#print(site.getsitepackages())
+#also "/usr/local/opt/conda/envs/plotPython/lib/python3.12/site-packages:${PYTHON_PATH}"
+
 
 # Install plotting libraries as root
-WORKDIR /home/$APP_UNAME/app
-RUN git clone https://github.com/SCECcode/ucvm_plotting.git
-WORKDIR /home/$APP_UNAME/app/ucvm_plotting
+WORKDIR $HOME/app
+RUN git clone https://github.com/SCECcode/ucvm_plotting.git -b withAnaconda3
+WORKDIR $HOME/app/ucvm_plotting
 RUN ./unpack-dist
 ## not able to unpack into system spot and so ended up at
 ## /home/ucvmuser/.local/lib/python3.12/site-packages/pycvm/
@@ -133,9 +141,13 @@ LABEL org.scec.responsible_person="Philip Maechling"
 LABEL org.scec.primary_contact="maechlin@usc.edu"
 LABEL version="ucvm_v22_7"
 
-RUN echo "source /home/$APP_UNAME/app/ucvm/conf/ucvm_env.sh" >> /home/$APP_UNAME/.bashrc && \
-    echo "export PATH=\"/usr/local/opt/conda/bin:$PATH\"" >> /home/$APP_UNAME/.bashrc && \
-    echo "conda activate plotPython" >> /home/$APP_UNAME/.bashrc
+RUN echo "source $HOME/app/ucvm/conf/ucvm_env.sh" >> $HOME/.bashrc && \
+    echo "export PATH=\"/usr/local/opt/conda/bin:$PATH\"" >> $HOME/.bashrc && \
+    echo "conda activate plotPython" >> $HOME/.bashrc
+
+RUN echo "source $HOME/app/ucvm/conf/ucvm_env.sh" > $HOME/setup && \
+    echo "cd $HOME/app/ucvm_plotting; ./unpack-dist" >> $HOME/setup && \
+    echo "cd $HOME/app/target" >> $HOME/setup
 
 # Added steps to manage home directory permissions
 RUN chown -R $APP_UID:$APP_GID $HOME && \
@@ -143,7 +155,7 @@ RUN chown -R $APP_UID:$APP_GID $HOME && \
 
 USER $APP_UNAME
 
-WORKDIR /home/$APP_UNAME
+WORKDIR $HOME
 
 # Expose the port JupyterLab will run on
 EXPOSE 8888
@@ -151,9 +163,9 @@ EXPOSE 8888
 # Define file input/output mounted disk
 VOLUME /home/$APP_UNAME/app/target
 
-SHELL ["/bin/bash", "--login", "-c"]
+#SHELL ["/bin/bash", "--login", "-c"]
 
-CMD ["/bin/bash" ]
+CMD ["/bin/bash", "--login" ]
 # Define the command to run JupyterLab
 #ENTRYPOINT ["/usr/local/opt/conda/bin/jupyter", "lab", "--ip=0.0.0.0", "--no-browser", "--allow-root"]
 

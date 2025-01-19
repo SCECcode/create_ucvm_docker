@@ -1,0 +1,6 @@
+source /home/ucvmuser/app/ucvm/conf/ucvm_env.sh
+cd /home/ucvmuser/app/ucvm_plotting; ./unpack-dist
+cd /home/ucvmuser/app/target
+
+export PYTHONPATH="/usr/local/opt/conda/envs/plotPython/lib/python3.12/site-packages:${PYTHONPATH}"
+
