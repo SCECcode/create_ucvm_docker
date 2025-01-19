@@ -38,4 +38,4 @@ if __name__ == '__main__':
         print("pushing models: " + m + " with sceccode/ucvm_227_%s_quakeworx:%s" % (m,mdate))
         cmd = "docker push sceccode/ucvm_227_%s_quakeworx:%s" % (m,mdate)
         print(cmd)
-        os.system(cmd)
+#        os.system(cmd)
