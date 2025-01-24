@@ -1,0 +1,99 @@
+Bootstrap: library
+From: rockylinux:9
+
+%help
+  Container with UCVM 22.7, ucvm_plotting, miniconda3 and Jupyter lab for rockylinux:9.0
+  This installation is based on Python 3.12
+
+%setup
+  ln -s /usr/bin/python3 /usr/bin/python
+  groupadd -f --non-unique --gid $APP_GID $APP_GRPNAME
+  useradd -ms /bin/bash -g $APP_GRPNAME --uid $APP_UID $APP_UNAME
+  mkdir $APP_HOME $APP_HOME/.local $APP_HOME/app $APP_HOME/target $APP_HOME/result
+  chown -R $APP_UID:$APP_GID $APP_HOME
+  chmod -R 755 $APP_HOME
+
+# environment that is available when container is run
+# usually PATH,LD_LIBRARY_PATH,PYTHONPATH
+%environment
+  JUP_PORT=8888
+  JUP_IPNAME=localhost
+
+  export JUP_PORT JUP_IPNAME
+
+### copy files needed before-(%post) stmt
+%file
+   target $APP_HOME/
+
+# default setting for variables
+%arguments
+  APP_UNAME="ucvmuser"
+  APP_GRPNAME="ucvmuser"
+  APP_UID=1000
+  APP_GID=1000
+  APP_MODELID="cvmh"
+  APP_BDATE=2025
+
+%post -c /bin/bash
+
+  export APP_UNAME APP_GRPNAME APP_UID APP_GID APP_MODELID APP_BDATE
+  export APP_HOME="/home/$APP_UNAME"
+
+  export PYTHONPATH="${APP_HOME}/miniconda3/lib/python3.12/site-packages:${APP_HOME}/.local/lib/python3.12/site-packages/pycvm:${PYTHONPATH}"
+  export PATH="$APP_HOME/miniconda3/bin:$APP_HOME/.local/bin:${PATH}"
+
+  yum clean all && \
+  yum -y update && \
+  yum -y groupinstall "Development Tools" && \
+  yum -y install curl wget yum-utils gcc-gfortran gcc-c++ fftw-devel which python38 python38-devel
+
+  ### Setup conda
+  wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O anaconda.sh
+  bash anaconda.sh -bfp $APP_HOME/miniconda3
+  export PATH="$APP_HOME/miniconda3/bin:$APP_HOME/.local/bin:${PATH}"
+  conda init
+
+  conda install -y matplotlib basemap basemap-data-hires 
+  conda install -y jupyterlab
+
+  ### Build user app
+  git clone https://github.com/sceccode/ucvm.git src
+
+  cd $APP_HOME/app/src/largefiles
+  ./get_largefiles.py -m $APP_MODELID 
+  ./stage_largefiles.py
+
+  cd $APP_HOME/app/src
+  ./ucvm_setup.py -a -d -p $HOME/app/ucvm >& ./ucvm_setup_install.log
+
+  rm -rf $APP_HOME/app/src
+
+  export PYTHONPATH="${APP_HOME}/miniconda3/lib/python3.12/site-packages:${APP_HOME}/.local/lib/python3.12/site-packages/pycvm:${PYTHONPATH}"
+
+  cd $APP_HOME/app
+  git clone https://github.com/SCECcode/ucvm_plotting.git -b withAnaconda3
+  cd $APP_HOME/app/ucvm_plotting
+  ./unpack-dist
+
+  echo "export PATH=\"$APP_HOME/miniconda3/bin:$APP_HOME/.local/bin:$PATH\"" >> $SINGULARITY_ENVIRONMENT
+  echo "cd $APP_HOME/app/ucvm_plotting; ./unpack-dist" >> $SINGULARITY_ENVIRONMENT
+  echo ". $APP_HOME/app/ucvm/conf/ucvm_env.sh" >> $SINGULARITY_ENVIRONMENT
+  echo "cd $APP_HOME" >> $SINGULARITY_ENVIRONMENT
+
+  cd $APP_HOME
+
+%startscript
+  PORT=""
+  if [ -n "$JUP_PORT" ]; then
+    PORT="--port=${JUP_PORT}"
+  fi
+
+  IPNAME="0.0.0.0"
+  if [ -n "$JUP_IPNAME" ]; then
+    IPNAME="--ip=${JUP_IPNAME}"
+  fi
+
+  exec  ["/bin/bash","--login"]
+  ### exec jupyter lab --ip={IPNAME} --no-browser --allow-root
+
+
