@@ -31,6 +31,7 @@ RUN useradd -ms /bin/bash -g $APP_GRPNAME --uid $APP_UID $APP_UNAME
 # Added explicit HOME environment variable
 # /home/ucvmuser
 ENV HOME=/home/$APP_UNAME
+SHELL ["/bin/bash", "-c"]
 
 WORKDIR /home/$APP_UNAME
 RUN yum clean all && \
@@ -63,12 +64,7 @@ RUN wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -
     conda create -n plotPython && \
     conda init bash
 
-RUN echo "conda activate plotPython" >> $HOME/.bashrc && \
-    /bin/bash $HOME/.bashrc && \
-    conda install -y matplotlib basemap basemap-data-hires 
-
-RUN conda install -y jupyterlab
-
+RUN conda install -y matplotlib basemap basemap-data-hires jupyterlab 
 
 #### building user app part 
 
@@ -100,7 +96,7 @@ ENV PYTHONPATH="${HOME}/miniconda3/lib/python3.12/site-packages:${HOME}/.local/l
 WORKDIR $HOME/app
 RUN git clone https://github.com/SCECcode/ucvm_plotting.git -b withAnaconda3
 WORKDIR $HOME/app/ucvm_plotting
-RUN ./unpack-dist
+#RUN ./unpack-dist
 ## not able to unpack into system spot and so ended up at
 ## /home/ucvmuser/.local/lib/python3.12/site-packages/pycvm/
 
@@ -116,14 +112,9 @@ RUN echo "conda activate plotPython" >> $HOME/.bashrc && \
     echo "export PATH=\"$HOME/miniconda3/bin:$HOME/.local/bin:$PATH\"" >> $HOME/.bashrc && \
     echo "cd $HOME/app/ucvm_plotting; ./unpack-dist" >> $HOME/.bashrc && \
     echo "conda activate plotPython" >> /home/$APP_UNAME/.bashrc && \
-    echo ". $HOME/app/ucvm/conf/ucvm_env.sh" >> $HOME/.bashrc && \
-    echo "cd $HOME" >> $HOME/.bashrc && \
+    echo "source $HOME/app/ucvm/conf/ucvm_env.sh" >> $HOME/.bashrc && \
+    echo "cd $HOME/app/target" >> $HOME/.bashrc && \
     echo "echo 'Done with .bashrc ..'" >> $HOME/.bashrc
-
-RUN echo "echo 'calling setup ..'" > $HOME/setup && \
-    echo "source $HOME/app/ucvm/conf/ucvm_env.sh" >> $HOME/setup && \
-    echo "cd $HOME/app/ucvm_plotting; ./unpack-dist" >> $HOME/setup && \
-    echo "cd $HOME" >> $HOME/setup
 
 # Expose the port JupyterLab will run on
 EXPOSE 8888
@@ -133,7 +124,11 @@ VOLUME $HOME/app/target
 
 WORKDIR $HOME
 
+ENV JUPYTER_TERMINAL_DEFAULT_SHELL="/bin/bash"
+
 # Define the command to run JupyterLab
-CMD  ["/bin/bash","--login"]
+#CMD  ["/bin/sh","--login"]
+
 #ENTRYPOINT ["/home/ucvmuser/miniconda3/bin/jupyter", "lab", "--ip=0.0.0.0", "--no-browser", "--allow-root"]
 
+ENTRYPOINT ["jupyter", "lab", "--ip=0.0.0.0", "--no-browser", "--allow-root"]

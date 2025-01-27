@@ -7,7 +7,7 @@
 #docker rm $(docker ps -a | grep Exit | cut -d ' ' -f 1)
 
 #docker run -p 8888:8888 --rm -it --mount type=bind,source="$(pwd)"/target,destination=/app/target sceccode/ucvm_227_cvmh_quakeworx:0118
-docker run -p 8888:8888 --rm -it --mount type=bind,source="$(pwd)"/target,destination=/home/ucvmuser/app/target sceccode/ucvm_227_cvmh_quakeworx:0120
+docker run -p 8888:8888 --rm -it --mount type=bind,source="$(pwd)"/target,destination=/home/ucvmuser/app/target sceccode/ucvm_227_cvmh_quakeworx:0122
 
 #sceccode/ucvm_227_cvmh_quakeworx:latest
 
