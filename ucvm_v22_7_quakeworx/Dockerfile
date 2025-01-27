@@ -85,6 +85,7 @@ WORKDIR $HOME/app
 RUN rm -rf src 
 
 ENV PYTHONPATH="${HOME}/miniconda3/lib/python3.12/site-packages:${HOME}/.local/lib/python3.12/site-packages/pycvm:${PYTHONPATH}"
+ARG PYTHONPATH="${HOME}/miniconda3/lib/python3.12/site-packages:${HOME}/.local/lib/python3.12/site-packages/pycvm:${PYTHONPATH}"
 
 #import site
 #print(site.getsitepackages())
@@ -127,8 +128,5 @@ WORKDIR $HOME
 ENV JUPYTER_TERMINAL_DEFAULT_SHELL="/bin/bash"
 
 # Define the command to run JupyterLab
-#CMD  ["/bin/sh","--login"]
-
-#ENTRYPOINT ["/home/ucvmuser/miniconda3/bin/jupyter", "lab", "--ip=0.0.0.0", "--no-browser", "--allow-root"]
-
-ENTRYPOINT ["jupyter", "lab", "--ip=0.0.0.0", "--no-browser", "--allow-root"]
+# CMD  ["/bin/bash","--login"]
+ENTRYPOINT ["/home/ucvmuser/miniconda3/bin/jupyter", "lab", "--ip=0.0.0.0", "--no-browser", "--allow-root"]
