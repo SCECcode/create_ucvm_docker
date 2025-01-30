@@ -127,7 +127,7 @@ RUN echo "echo 'calling setup ..'" > $HOME/setup && \
     echo "cd $HOME" >> $HOME/setup
 
 # Expose the port JupyterLab will run on
-EXPOSE 8888
+##EXPOSE 8888
 
 # Define file input/output mounted disk
 VOLUME $HOME/app/target
