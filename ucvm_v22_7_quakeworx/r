@@ -2,6 +2,7 @@
 # -it indicates inteactive + --tty so that users are at an interactive tty command line when the container starts
 #
 #docker rmi 97c9eff227f3
+<<<<<<< HEAD
 #docker rm $(docker ps -a | grep Exit | cut -d ' ' -f 1)
 
 docker pull sceccode/ucvm_227_cvmh_quakeworx:0130
@@ -10,4 +11,14 @@ docker pull sceccode/ucvm_227_cvmh_quakeworx:0130
 
 docker run -p 8888:8888 --rm -it --mount type=bind,source="$(pwd)"/target,destination=/home/ucvmuser/app/target sceccode/ucvm_227_cvmh_quakeworx:0130
 
+=======
+
+#docker pull sceccode/ucvm_227_cvmh_quakeworx:0130
+#docker rm $(docker ps -a | grep Exit | cut -d ' ' -f 1)
+
+#docker run -p 8888:8888 --rm -it --mount type=bind,source="$(pwd)"/target,destination=/target sceccode/ucvm_227_cvmh_quakeworx:0118
+docker run -p 8888:8888 --rm -it --mount type=bind,source="$(pwd)"/target,destination=/home/ucvmuser/target sceccode/ucvm_227_cvmh_quakeworx:0130
+
+#sceccode/ucvm_227_cvmh_quakeworx:latest
+>>>>>>> 6f3071533b42de9a9e03ea01b47a8a4caa788a46
 #/expanse/lustre/projects/usc143/qwxdev/apps/expanse/rocky8.8/ucvm_227/singularity/xxx.sif

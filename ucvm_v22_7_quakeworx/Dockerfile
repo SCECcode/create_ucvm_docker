@@ -30,9 +30,10 @@ RUN useradd -ms /bin/bash -g $APP_GRPNAME --uid $APP_UID $APP_UNAME
 
 # Added explicit HOME environment variable
 # /home/ucvmuser
-ENV HOME=/home/$APP_UNAME
+ENV MYHOME=/home/$APP_UNAME
+SHELL ["/bin/bash", "-c"]
 
-WORKDIR /home/$APP_UNAME
+WORKDIR $MYHOME
 RUN yum clean all && \
     yum -y update && \
     yum -y groupinstall "Development Tools" && \
@@ -43,19 +44,21 @@ RUN yum clean all && \
 RUN ln -s /usr/bin/python3 /usr/bin/python
 
 # Added steps to manage home directory permissions
-RUN mkdir -p $HOME/.local && \
-    mkdir -p $HOME/result && \
-    chown -R $APP_UID:$APP_GID $HOME && \
-    chmod -R 755 $HOME
+RUN mkdir -p $MYHOME/.local && \
+    mkdir -p $MYHOME/result && \
+    mkdir -p $MYHOME/app && \
+    mkdir -p $MYHOME/target && \
+    chown -R $APP_UNAME:$APP_GRPNAME $MYHOME && \
+    chmod -R 775 $MYHOME
 
 USER $APP_UNAME
 
-ENV PATH="$HOME/miniconda3/bin:$HOME/.local/bin:${PATH}"
-ARG PATH="$HOME/miniconda3/bin:$HOME/.local/bin:${PATH}"
+ENV PATH="$MYHOME/app/miniconda3/bin:$MYHOME/.local/bin:${PATH}"
+ARG PATH="$MYHOME/app/miniconda3/bin:$MYHOME/.local/bin:${PATH}"
 
-WORKDIR /home/$APP_UNAME
+WORKDIR $MYHOME/app
 RUN wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O anaconda.sh && \
-    mkdir $HOME/.conda && \
+    mkdir $MYHOME/.conda && \
     /bin/bash anaconda.sh -b && \
     rm -f anaconda.sh && \
     echo "Running $(conda --version)" && \
@@ -63,45 +66,34 @@ RUN wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -
     conda create -n plotPython && \
     conda init bash
 
-RUN echo "conda activate plotPython" >> $HOME/.bashrc && \
-    /bin/bash $HOME/.bashrc && \
-    conda install -y matplotlib basemap basemap-data-hires 
-
-RUN conda install -y jupyterlab
-
+RUN conda install -y matplotlib basemap basemap-data-hires jupyterlab 
 
 #### building user app part 
 
 # Retrieve and build UCVM
-WORKDIR $HOME/app
+WORKDIR $MYHOME/app
 RUN git clone https://github.com/sceccode/ucvm.git src
 
 # An external script has selected the correct model files for this image in the largefiles dir
 # by setting the model abbreviations in the largefile_inputs.txt file
-WORKDIR $HOME/app/src/largefiles
+WORKDIR $MYHOME/app/src/largefiles
 RUN ./get_largefiles.py -m $MODELID && ./stage_largefiles.py
 
-WORKDIR $HOME/app/src
-RUN ./ucvm_setup.py -a -d -p $HOME/app/ucvm >& ./ucvm_setup_install.log
+WORKDIR $MYHOME/app/src
+RUN ./ucvm_setup.py -a -d -p $MYHOME/app/ucvm >& ./ucvm_setup_install.log
 
 # Remove the src directories to save space
-WORKDIR $HOME/app
+WORKDIR $MYHOME/app
 RUN rm -rf src 
 
-ENV PYTHONPATH="${HOME}/miniconda3/lib/python3.12/site-packages:${HOME}/.local/lib/python3.12/site-packages/pycvm:${PYTHONPATH}"
-ARG PYTHONPATH="${HOME}/miniconda3/lib/python3.12/site-packages:${HOME}/.local/lib/python3.12/site-packages/pycvm:${PYTHONPATH}"
-
-#import site
-#print(site.getsitepackages())
-#also "/usr/local/opt/conda/envs/plotPython/lib/python3.12/site-packages:${PYTHON_PATH}"
-#./miniconda3/lib/python3.12/site-packages
-#/.local/lib/python3.12/site-packages
+ENV PYTHONPATH="${MYHOME}/app/miniconda3/lib/python3.12/site-packages:${MYHOME}/.local/lib/python3.12/site-packages/pycvm:${PYTHONPATH}"
+ARG PYTHONPATH="${MYHOME}/app/miniconda3/lib/python3.12/site-packages:${MYHOME}/.local/lib/python3.12/site-packages/pycvm:${PYTHONPATH}"
 
 # Install plotting libraries
-WORKDIR $HOME/app
+WORKDIR $MYHOME/app
 RUN git clone https://github.com/SCECcode/ucvm_plotting.git -b withAnaconda3
-WORKDIR $HOME/app/ucvm_plotting
-RUN ./unpack-dist
+WORKDIR $MYHOME/app/ucvm_plotting
+#RUN ./unpack-dist
 ## not able to unpack into system spot and so ended up at
 ## /home/ucvmuser/.local/lib/python3.12/site-packages/pycvm/
 
@@ -113,28 +105,25 @@ LABEL org.scec.responsible_person="Philip Maechling"
 LABEL org.scec.primary_contact="maechlin@usc.edu"
 LABEL version="ucvm_v22_7"
 
-RUN echo "conda activate plotPython" >> $HOME/.bashrc && \
-    echo "export PATH=\"$HOME/miniconda3/bin:$HOME/.local/bin:$PATH\"" >> $HOME/.bashrc && \
-    echo "cd $HOME/app/ucvm_plotting; ./unpack-dist" >> $HOME/.bashrc && \
-    echo "conda activate plotPython" >> /home/$APP_UNAME/.bashrc && \
-    echo ". $HOME/app/ucvm/conf/ucvm_env.sh" >> $HOME/.bashrc && \
-    echo "cd $HOME" >> $HOME/.bashrc && \
-    echo "echo 'Done with .bashrc ..'" >> $HOME/.bashrc
-
-RUN echo "echo 'calling setup ..'" > $HOME/setup && \
-    echo "source $HOME/app/ucvm/conf/ucvm_env.sh" >> $HOME/setup && \
-    echo "cd $HOME/app/ucvm_plotting; ./unpack-dist" >> $HOME/setup && \
-    echo "cd $HOME" >> $HOME/setup
+RUN echo "conda activate plotPython" >> $MYHOME/.bashrc && \
+    echo "export PATH=\"$MYHOME/app/miniconda3/bin:$MYHOME/.local/bin:$PATH\"" >> $MYHOME/.bashrc && \
+    echo "cd $MYHOME/app/ucvm_plotting; ./unpack-dist" >> $MYHOME/.bashrc && \
+    echo "conda activate plotPython" >> $MYHOME/.bashrc && \
+    echo "source $MYHOME/app/ucvm/conf/ucvm_env.sh" >> $MYHOME/.bashrc && \
+    echo "cd $MYHOME/target" >> $MYHOME/.bashrc && \
+    echo "echo 'Done with .bashrc ..'" >> $MYHOME/.bashrc
 
 # Expose the port JupyterLab will run on
-##EXPOSE 8888
+#EXPOSE 8888
 
 # Define file input/output mounted disk
-VOLUME $HOME/app/target
+VOLUME $MYHOME/target
 
-WORKDIR $HOME
+WORKDIR $MYHOME
+
+ENV JUPYTER_TERMINAL_DEFAULT_SHELL="/bin/bash"
+ENV HOME=$MYHOME
 
 # Define the command to run JupyterLab
-#CMD  ["/bin/bash","--login"]
-ENTRYPOINT ["/home/ucvmuser/miniconda3/bin/jupyter", "lab", "--ip=0.0.0.0", "--no-browser", "--allow-root"]
-
+# CMD  ["/bin/bash","--login"]
+ENTRYPOINT ["/home/ucvmuser/app/miniconda3/bin/jupyter", "lab", "--ip=0.0.0.0", "--no-browser", "--allow-root"]
