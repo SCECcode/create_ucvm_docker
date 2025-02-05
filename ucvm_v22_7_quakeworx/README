@@ -1,13 +1,50 @@
 
-In a running UCVM container
+running UCVM container on quakeworx platform as a juypter lab terminal
 
 user id is ucvmuser
 
 ucvmuser's home directory is at /home/ucvmuser, this is not preserved after session exits
 
-relevant directory structure is under /app
+relevant directory structure,
+/dotlocal where anaconda is installed
+/result where the resulting plots are stored, not preserved
+/setup_ucvm a ucvm setup script
+/target is the working target directory with plotting samples, 
+         this is preserved after session exits
 
-/app/examples contains couple of example scripts and datapoints
-/app/ucvm contains the installation of UCVM v22.7 and ucvm plotting utilities
-/app/target is the working target directory, this is preserved after session exits
+/app
+/app/minicona3 contains miniconda3's src
+/app/ucvm contains the installation of UCVM v22.7 and latest ucvm plotting utilities
+/app/ucvm_plotting contains latest ucvm plotting utilities in anaconda3 mode
+
+
+===== current running state ====
+
+   -- moho generate docker instance
+   -- laptop to build and run container
+   -- expanse to convert from docker instance to singularity instance
+   -- quakeworx to run the singularity container -- juypter lab terminal
+
+   -> docker container on laptop
+                1 userid,
+                permission correct on ucvmuser directory
+                current user id -- ucvmuser
+
+       1st way:
+         source /home/ucvmuser/app/ucvm/conf/ucvm_env.sh
+         cd target and run the plotting scripts
+       2nd way:
+         source ./setup-ucvm
+         run the plotting scripts
+       3rd way:
+         source ./.bashrc
+         run the plotting scripts
+
+   -> singualarity container running on quakeworx:
+                2 userid - quakwx, ucvmuser
+                permission incorrect on ucvmuser directory
+                current user id -- quakewx
+
+
+
 

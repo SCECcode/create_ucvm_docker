@@ -47,19 +47,20 @@ RUN ln -s /usr/bin/python3 /usr/bin/python
 RUN mkdir -p $MYHOME/.local && \
     mkdir -p $MYHOME/result && \
     mkdir -p $MYHOME/app && \
+    mkdir -p $MYHOME/dotlocal && \
     mkdir -p $MYHOME/target && \
     chown -R $APP_UNAME:$APP_GRPNAME $MYHOME && \
     chmod -R 775 $MYHOME
 
 USER $APP_UNAME
 
-ENV PATH="$MYHOME/app/miniconda3/bin:$MYHOME/.local/bin:${PATH}"
-ARG PATH="$MYHOME/app/miniconda3/bin:$MYHOME/.local/bin:${PATH}"
+ENV PATH="$MYHOME/app/miniconda3/bin:~/.local/bin:$MYHOME/.local/bin:$MYHOME/dotlocal/bin:${PATH}"
+ARG PATH="$MYHOME/app/miniconda3/bin:~/.local/bin:$MYHOME/.local/bin:$MYHOME/dotlocal/bin:${PATH}"
 
 WORKDIR $MYHOME/app
 RUN wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O anaconda.sh && \
     mkdir $MYHOME/.conda && \
-    /bin/bash anaconda.sh -b && \
+    /bin/bash anaconda.sh -b -p $MYHOME/app/miniconda3 && \
     rm -f anaconda.sh && \
     echo "Running $(conda --version)" && \
     conda update conda && \
@@ -86,15 +87,15 @@ RUN ./ucvm_setup.py -a -d -p $MYHOME/app/ucvm >& ./ucvm_setup_install.log
 WORKDIR $MYHOME/app
 RUN rm -rf src 
 
-ENV PYTHONPATH="${MYHOME}/app/miniconda3/lib/python3.12/site-packages:${MYHOME}/.local/lib/python3.12/site-packages/pycvm:${PYTHONPATH}"
-ARG PYTHONPATH="${MYHOME}/app/miniconda3/lib/python3.12/site-packages:${MYHOME}/.local/lib/python3.12/site-packages/pycvm:${PYTHONPATH}"
+ENV PYTHONPATH="${MYHOME}/app/miniconda3/lib/python3.12/site-packages:${MYHOME}/.local/lib/python3.12/site-packages:${MYHOME}/dotlocal/lib/python3.12/site-packages"
+ARG PYTHONPATH="${MYHOME}/app/miniconda3/lib/python3.12/site-packages:${MYHOME}/.local/lib/python3.12/site-packages:${MYHOME}/dotlocal/lib/python3.12/site-packages"
 
 # Install plotting libraries
 WORKDIR $MYHOME/app
 RUN git clone https://github.com/SCECcode/ucvm_plotting.git -b withAnaconda3
 WORKDIR $MYHOME/app/ucvm_plotting
 #RUN ./unpack-dist
-## not able to unpack into system spot and so ended up at
+RUN pip install dist/ucvm_plotting-0.0.6.tar.gz --prefix=$MYHOME/dotlocal
 ## /home/ucvmuser/.local/lib/python3.12/site-packages/pycvm/
 
 # Add metadata to dockerfile using labels
@@ -105,11 +106,17 @@ LABEL org.scec.responsible_person="Philip Maechling"
 LABEL org.scec.primary_contact="maechlin@usc.edu"
 LABEL version="ucvm_v22_7"
 
-RUN echo "conda activate plotPython" >> $MYHOME/.bashrc && \
-    echo "export PATH=\"$MYHOME/app/miniconda3/bin:$MYHOME/.local/bin:$PATH\"" >> $MYHOME/.bashrc && \
-    echo "cd $MYHOME/app/ucvm_plotting; ./unpack-dist" >> $MYHOME/.bashrc && \
-    echo "conda activate plotPython" >> $MYHOME/.bashrc && \
-    echo "source $MYHOME/app/ucvm/conf/ucvm_env.sh" >> $MYHOME/.bashrc && \
+#    echo "cd $MYHOME/app/ucvm_plotting; pip install dist/ucvm_plotting-0.0.6.tar.gz --prefix=$MYHOME/dotlocal" >> $MYHOME/setup_ucvm && \
+
+RUN echo "source ./.bashrc" > $MYHOME/setup_ucvm && \
+    echo "conda activate plotPython" >> $MYHOME/setup_ucvm && \
+    echo "export PATH=\"$MYHOME/app/miniconda3/bin:~/.local/bin:$MYHOME/.local/bin:$MYHOME/dotlocal/bin:${PATH}\"" >> $MYHOME/setup_ucvm && \
+    echo "source $MYHOME/app/ucvm/conf/ucvm_env.sh" >> $MYHOME/setup_ucvm && \
+    echo "cd $MYHOME/target" >> $MYHOME/setup_ucvm && \
+    echo "echo 'Done with setup_ucvm ..'" >> $MYHOME/setup_ucvm && \
+    chmod +x $MYHOME/setup_ucvm
+
+RUN echo "source $MYHOME/app/ucvm/conf/ucvm_env.sh" >> $MYHOME/.bashrc && \
     echo "cd $MYHOME/target" >> $MYHOME/.bashrc && \
     echo "echo 'Done with .bashrc ..'" >> $MYHOME/.bashrc
 
