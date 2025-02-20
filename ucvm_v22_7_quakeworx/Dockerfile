@@ -50,7 +50,7 @@ RUN mkdir -p $MYHOME/.local && \
     mkdir -p $MYHOME/dotlocal && \
     mkdir -p $MYHOME/target && \
     chown -R $APP_UNAME:$APP_GRPNAME $MYHOME && \
-    chmod -R 775 $MYHOME
+    chmod -R 755 $MYHOME
 
 USER $APP_UNAME
 
@@ -82,6 +82,7 @@ RUN ./get_largefiles.py -m $MODELID && ./stage_largefiles.py
 
 WORKDIR $MYHOME/app/src
 RUN ./ucvm_setup.py -a -d -p $MYHOME/app/ucvm >& ./ucvm_setup_install.log
+RUN chmod -R +r $MYHOME/app/ucvm/model
 
 # Remove the src directories to save space
 WORKDIR $MYHOME/app

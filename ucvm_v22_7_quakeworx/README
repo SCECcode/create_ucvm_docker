@@ -41,10 +41,35 @@ relevant directory structure,
          run the plotting scripts
 
    -> singualarity container running on quakeworx:
-                2 userid - quakwx, ucvmuser
+                2 userid - qwxdev, ucvmuser
                 permission incorrect on ucvmuser directory
                 current user id -- quakewx
 
 
+
+=== over at expanse.(where app is defined) === (Choonhan)
+
+environment  HOME=/home/ucvmuser
+
+             ^^^^^^ seems to be ignored
+
+container launching arguments
+
+--no-home
+--bind ${PWD}:/home/qwxdev
+--bind /expanse/lustre/projects/usc143/qwxdev/apps/expanse/rocky8.8/ucvm_227/target:/home/ucvmuser/target
+--bind ${PWD}:/home/ucvmuser/result
+   ^^^^^^^^^^^^ -- to get the permission of user/group=qwxdev/usc143 on result directory
+
+
+---> In running app,
+
+steps:
+
+   cd /home/ucvmuser
+   source ./setup_ucvm
+   ucvm_query -H
+   ./plot_cross.sh
+   look at  /home/ucvmuser/result/cross_cvmh.png
 
 
