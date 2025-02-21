@@ -1,0 +1,27 @@
+
+cmd:
+    bash
+    which ucvm_query
+    ucvm_query -H
+    cd target
+    plot_cross.sh
+               -> cross_cvmh.png
+    plot_profile.sh
+               -> profile_cvmh.png
+    plot_slice.sh
+               -> slice_cvmh.png
+
+What is included:
+    UCVM 22.7 with cvmh
+    ucvm_plotting(python2)
+
+Quakeworx setup:
+
+ container launch arguments
+   -bind /expanse/lustre/projects/usc143/qwxdev/apps/expanse/rocky8.8/ucvm_227/target:/app/target
+ 
+standalone call:
+docker run -p 8888:8888 --rm -it --mount type=bind,source="$(pwd)"/target,destination=/app/target sceccode/ucvm_227_c
+vmh_quakeworx:latest
+
+
