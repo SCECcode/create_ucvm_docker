@@ -1,0 +1,6 @@
+
+#docker pull sceccode/ucvm_257_cvmh:latest
+#
+docker run -p 8888:8888 --rm -it --mount type=bind,source="$(pwd)"/target,destination=/home/ucvmuser/target ucvm_257_cvmh:0619
+
+#sceccode/ucvm_257_cvmh:latest

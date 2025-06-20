@@ -22,19 +22,19 @@ if __name__ == '__main__':
 
     models = ["cvmh"]
 
+#        cmd = "docker build --no-cache -f Dockerfile . -t ucvm_257_%s:%s " \
+
     for m in models:
         print ("building model: " + m)
-## special case for mac M1 chip
-        cmd = "docker build --platform=linux/amd64 --no-cache=false -f Dockerfile . -t ucvm_257_%s:%s " \
+        cmd = "docker build --no-cache -f Dockerfile . -t ucvm_257_%s:%s " \
             "--build-arg APP_UNAME=ucvmuser --build-arg APP_GRPNAME=ucvmuser " \
             "--build-arg APP_UID=1000 --build-arg APP_GID=1000 --build-arg MODELID=%s --build-arg BDATE=%s"%(m,mdate,m,mdate)
         os.system(cmd)
+#        cmd = "docker tag ucvm_257_%s:%s sceccode/ucvm_257_%s:%s"%(m,mdate,m,mdate)
+#        os.system(cmd)
 
-        cmd = "docker tag ucvm_257_%s:%s sceccode/ucvm_257_%s:latest"%(m,mdate,m)
-        os.system(cmd)
-
-    for m in models:
-        print("pushing models: " + m + "with sceccode/ucvm_257_%s:%s" % (m,mdate))
-        cmd = "docker push sceccode/ucvm_257_%s:%s" % (m,mdate)
-        cmd = "docker push sceccode/ucvm_257_%s:latest" % (m)
-        os.system(cmd)
+#    for m in models:
+#        print("pushing models: " + m + " with sceccode/ucvm_257_%s:%s" % (m,mdate))
+#        cmd = "docker push sceccode/ucvm_257_%s:%s" % (m,mdate)
+#        cmd = "docker push sceccode/ucvm_257_%s:latest" % (m)
+#        os.system(cmd)

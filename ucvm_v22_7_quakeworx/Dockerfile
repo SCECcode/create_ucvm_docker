@@ -57,8 +57,10 @@ USER $APP_UNAME
 ENV PATH="$MYHOME/app/miniconda3/bin:~/.local/bin:$MYHOME/.local/bin:$MYHOME/dotlocal/bin:${PATH}"
 ARG PATH="$MYHOME/app/miniconda3/bin:~/.local/bin:$MYHOME/.local/bin:$MYHOME/dotlocal/bin:${PATH}"
 
+##wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O anaconda.sh && \
+
 WORKDIR $MYHOME/app
-RUN wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O anaconda.sh && \
+RUN wget https://repo.anaconda.com/miniconda/Miniconda3-py312_24.5.0-0-Linux-x86_64.sh -O anaconda.sh && \
     mkdir $MYHOME/.conda && \
     /bin/bash anaconda.sh -b -p $MYHOME/app/miniconda3 && \
     rm -f anaconda.sh && \
