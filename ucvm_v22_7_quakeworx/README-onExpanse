@@ -13,7 +13,7 @@ cmd:
 
 What is included:
     UCVM 22.7 with cvmh
-    ucvm_plotting(python2)
+    ucvm_plotting(withAnaconda3)
 
 Quakeworx setup:
 

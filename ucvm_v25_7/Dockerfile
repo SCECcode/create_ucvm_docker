@@ -27,8 +27,6 @@ SHELL ["/bin/bash", "-c"]
 # Setup Owners
 # Documents say this groupadd is needed when you build on linux, but not on Mac
 
-#RUN groupadd --non-unique --gid $APP_GID $APP_GRPNAME
-#RUN useradd -ms /bin/bash -g $APP_GRPNAME --uid $APP_UID $APP_UNAME
 RUN groupadd --gid $APP_GID $APP_GRPNAME 
 RUN useradd --uid $APP_UID --gid $APP_GID --create-home $APP_UNAME 
 RUN mkdir -p /etc/sudoers.d && \
@@ -52,7 +50,6 @@ RUN yum clean all && \
 RUN yum -y install perl-ExtUtils-MakeMaker perl-Text-Template perl-Pod-Html
 
 #ENV PERL5LIB=/usr/local/lib/perl5:/usr/lib/perl5:/usr/share/perl5:/usr/share/perl5/vendor_perl
-
 # Create python link as root before setting user. This is needed by
 # the ucvm_setup.py script which will run to the ucvm installation
 # To support the python2 plotting library, we will install Anaconda with a python2

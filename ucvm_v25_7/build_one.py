@@ -20,7 +20,7 @@ if __name__ == '__main__':
     day=dt.day
     mdate="%02d%02d"%(month,day)
 
-    models = ["cvmh"]
+    models = ["cvmsi"]
 
 #        cmd = "docker build --no-cache -f Dockerfile . -t ucvm_257_%s:%s " \
 
