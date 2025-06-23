@@ -20,17 +20,14 @@ if __name__ == '__main__':
     day=dt.day
     mdate="%02d%02d"%(month,day)
 
-#    models = ["cvmh"]
     models = ["cvmsi"]
-
-#        cmd = "docker build --no-cache -f Dockerfile . -t ucvm_257_%s:%s " \
 
     for m in models:
         print ("building model: " + m)
         cmd = "docker build -f Dockerfile . -t ucvm_257_%s:%s " \
             "--build-arg APP_UNAME=ucvmuser --build-arg APP_GRPNAME=ucvmuser " \
             "--build-arg APP_UID=1000 --build-arg APP_GID=1000 --build-arg MODELID=%s --build-arg BDATE=%s"%(m,mdate,m,mdate)
-#        os.system(cmd)
+        os.system(cmd)
 #        cmd = "docker tag ucvm_257_%s:%s sceccode/ucvm_257_%s:%s"%(m,mdate,m,mdate)
 #        os.system(cmd)
 

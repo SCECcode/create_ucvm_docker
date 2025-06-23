@@ -150,5 +150,6 @@ RUN echo "source $MYHOME/app/ucvm/conf/ucvm_env.sh" >> $MYHOME/.bashrc && \
 
 # Set working directory
 WORKDIR $MYHOME
+
 ENTRYPOINT ["/bin/bash", "--login"]
 

@@ -11,3 +11,30 @@ relevant directory structure is under /home/ucvmuser/app
 /home/ucvmuser/app/ucvm contains the installation of UCVM v25.7 and ucvm plotting utilities
 /home/ucvmuser/app/target is the working target directory, this is preserved after session exits
 
+
+----- USC CARC apptainer
+
+module load apptainer
+apptainer pull docker://sceccode/ucvm_257_cvmsi:0623
+
+apptainer registry login --username yourDockerID docker://docker.io
+
+## $PWD is /home/ucvmuser/target in the container
+##apptainer shell --bind $PWD,/scratch1/mei/singularity ucvm_257_cvmsi_0623.sif
+
+apptainer shell ucvm_257_cvmsi_0623.sif
+
+source /home/ucvmuser/.bashrc
+
+cd
+
+ucvm_query -f /home/ucvmuser/app/ucvm/conf/ucvm.conf -m cvmsi < /home/ucvmuser/app/ucvm/tests/inputs/test_latlons_cvmsi.txt > test_results.log
+
+#conda activate plotPython
+#plot_cross_section.py -b 34.0,-122.00 -u 34.0,-117.5 -s 0 -e 2000 -h 500 -v 10 -d vs -a d -c cvmsi -o cross-cvmsi.png
+
+***** the result is dropped in your local home directory
+
+
+ 
+
