@@ -24,7 +24,7 @@ if __name__ == '__main__':
 
     for m in models:
         print ("building model: " + m)
-        cmd = "docker build --no-cache -f Dockerfile . -t ucvm_257_%s_remote:%s " \
+        cmd = "docker build -f Dockerfile . -t ucvm_257_%s_remote:%s " \
             "--build-arg APP_UNAME=ucvmuser --build-arg APP_GRPNAME=ucvmuser " \
             "--build-arg APP_UID=1000 --build-arg APP_GID=1000 --build-arg MODELID=%s --build-arg BDATE=%s"%(m,mdate,m,mdate)
         os.system(cmd)

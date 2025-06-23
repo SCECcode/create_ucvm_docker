@@ -59,12 +59,15 @@ RUN yum -y install perl-ExtUtils-MakeMaker perl-Text-Template perl-Pod-Html
 # virtual environment in this image
 RUN ln -s /usr/bin/python3 /usr/bin/python
 
+# Setup user with test input files
+WORKDIR $MYHOME
+COPY examples $MYHOME/examples
+
 # Added steps to manage home directory permissions
 RUN mkdir -p $MYHOME/.local && \
     mkdir -p $MYHOME/result && \
     mkdir -p $MYHOME/app && \
     mkdir -p $MYHOME/dotlocal && \
-    mkdir -p $MYHOME/target && \
     chown -R $APP_UNAME:$APP_GRPNAME $MYHOME && \
     chmod -R 755 $MYHOME
 
@@ -129,14 +132,14 @@ VOLUME $MYHOME/target
 
 # Setup user with test input files
 #
-WORKDIR /app
-COPY examples /app/examples
+WORKDIR $MYHOME
+COPY examples $MYHOME/examples
 
 RUN echo "source ./.bashrc" > $MYHOME/setup_ucvm && \
     echo "conda activate plotPython" >> $MYHOME/setup_ucvm && \
     echo "export PATH=\"$MYHOME/app/miniconda3/bin:~/.local/bin:$MYHOME/.local/bin:$MYHOME/dotlocal/bin:${PATH}\"" >> $MYHOME/setup_ucvm && \
     echo "source $MYHOME/app/ucvm/conf/ucvm_env.sh" >> $MYHOME/setup_ucvm && \
-    echo "cd $MYHOME/target" >> $MYHOME/setup_ucvm && \
+    ec/home1/mei/.apptainer/remote.yamlho "cd $MYHOME/target" >> $MYHOME/setup_ucvm && \
     echo "echo 'Done with setup_ucvm ..'" >> $MYHOME/setup_ucvm && \
     chmod +x $MYHOME/setup_ucvm
 
@@ -144,8 +147,6 @@ RUN echo "source $MYHOME/app/ucvm/conf/ucvm_env.sh" >> $MYHOME/.bashrc && \
     echo "cd $MYHOME/target" >> $MYHOME/.bashrc && \
     echo "echo 'Done with .bashrc ..'" >> $MYHOME/.bashrc
 
-
-#RUN copy example $MYHOME/example
 
 # Set working directory
 WORKDIR $MYHOME

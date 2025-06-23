@@ -21,8 +21,6 @@ ENV APP_UNAME=$APP_UNAME \
 ENV MYHOME=/home/$APP_UNAME
 ENV UCVM_SRC_PATH=$MYHOME/app/src
 ENV UCVM_INSTALL_PATH=$MYHOME/app/ucvm
-ENV CVM_LARGEDATA_DIR=$MYHOME/target
-ENV CVM_IN_DOCKER='#'
 
 SHELL ["/bin/bash", "-c"]
 
@@ -98,7 +96,8 @@ WORKDIR $UCVM_SRC_PATH/largefiles
 RUN ./get_largefiles.py -m $MODELID && ./stage_largefiles.py
 
 WORKDIR $UCVM_SRC_PATH
-RUN ./ucvm_setup.py -a -d -p $UCVM_INSTALL_PATH >& ./ucvm_setup_install.log
+
+RUN CVM_LARGEDATA_DIR=$MYHOME/target CVM_IN_DOCKER='#' ./ucvm_setup.py -a -d -p $UCVM_INSTALL_PATH >& ./ucvm_setup_install.log
 RUN chmod -R +r $UCVM_INSTALL_PATH/model
 
 # Remove the src directories to save space

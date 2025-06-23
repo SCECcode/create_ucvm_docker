@@ -1,2 +1,2 @@
 
-view_png.py -f cross-cvmh.png
+view_png.py -f cross-cvmsi.png
