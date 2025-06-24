@@ -11,6 +11,17 @@ relevant directory structure is under /home/ucvmuser/app
 /home/ucvmuser/app/ucvm contains the installation of UCVM v25.7 and ucvm plotting utilities
 /home/ucvmuser/app/target is the working target directory, this is preserved after session exits
 
+----- locally
+
+docker pull sceccode/ucvm_257_cvmsi:latest
+docker run -p 8888:8888 --rm -it --mount type=bind,source="$(pwd)"/target,destination=/home/ucvmuser/target ucvm_257_cvmsi:0623
+
+## should be in target directory
+../example/run_query.sh
+
+## making plots
+source ../setup_ucvm
+../example/run_plot.sh
 
 ----- USC CARC apptainer
 
