@@ -132,7 +132,8 @@ VOLUME $MYHOME/target
 WORKDIR $MYHOME
 COPY examples $MYHOME/examples
 
-RUN echo "source ./.bashrc" > $MYHOME/setup_ucvm && \
+RUN echo "source $MYHOME/.bashrc" > $MYHOME/setup_ucvm && \
+    echo "conda init" >> $MYHOME/setup_ucvm && \
     echo "conda activate plotPython" >> $MYHOME/setup_ucvm && \
     echo "export PATH=\"$MYHOME/app/miniconda3/bin:~/.local/bin:$MYHOME/.local/bin:$MYHOME/dotlocal/bin:${PATH}\"" >> $MYHOME/setup_ucvm && \
     echo "source $MYHOME/app/ucvm/conf/ucvm_env.sh" >> $MYHOME/setup_ucvm && \
