@@ -136,7 +136,7 @@ RUN echo "source ./.bashrc" > $MYHOME/setup_ucvm && \
     echo "conda activate plotPython" >> $MYHOME/setup_ucvm && \
     echo "export PATH=\"$MYHOME/app/miniconda3/bin:~/.local/bin:$MYHOME/.local/bin:$MYHOME/dotlocal/bin:${PATH}\"" >> $MYHOME/setup_ucvm && \
     echo "source $MYHOME/app/ucvm/conf/ucvm_env.sh" >> $MYHOME/setup_ucvm && \
-    ec/home1/mei/.apptainer/remote.yamlho "cd $MYHOME/target" >> $MYHOME/setup_ucvm && \
+    echo "cd $MYHOME/target" >> $MYHOME/setup_ucvm && \
     echo "echo 'Done with setup_ucvm ..'" >> $MYHOME/setup_ucvm && \
     chmod +x $MYHOME/setup_ucvm
 
